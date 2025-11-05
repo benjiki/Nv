@@ -12,7 +12,8 @@
     "strict": true
   },
   "include": [
-    "src/**/*.ts"
+    "src",
+    "src/generated/**/*.d.ts"
   ],
   "exclude": [
     "node_modules"

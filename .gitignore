@@ -61,10 +61,6 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-# === Optional: VSCode local settings ===
-.vscode/settings.json
-.vscode/tasks.json
-.vscode/launch.json
 
 # === Optional: test coverage reports ===
 coverage/
