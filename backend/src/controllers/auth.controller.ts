@@ -1,7 +1,7 @@
-// apps/auth-service/src/controllers/auth.controller.ts
+// /src/controllers/auth.controller.ts
 import { Request, Response } from "express";
 import * as auth from "../services/auth.service";
-
+import { UserRoles, prisma } from "../prismaClient";
 export const registerUser = async (req: Request, res: Response) => {
   try {
     const user = await auth.regUserService(req.body);
@@ -57,6 +57,31 @@ export const refreshAccessToken = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     res.status(403).json({ error: error.message });
+  }
+};
+
+export const getMe = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.id;
+    if (!userId) return res.status(401).json({ error: "Not authenticated" });
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        phoneNumber: true,
+        role: true,
+        accountStatus: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    res.json({ user });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || "Failed to fetch user" });
   }
 };
 

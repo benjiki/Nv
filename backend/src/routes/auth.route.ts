@@ -1,6 +1,5 @@
 // apps/auth-service/src/routes/auth.route.ts
 import express, { Router } from "express";
-import passport from "passport";
 
 import { authorizeRoles } from "../middleware/authorizeRoles";
 import { validateRequest } from "../middleware/validateRequest";
@@ -10,6 +9,7 @@ import * as validation from "../validations/auth.validations";
 
 const router: Router = express.Router();
 
+// Public routes
 router.post(
   "/register",
   validateRequest(validation.registerValidationSchema),
@@ -22,18 +22,26 @@ router.post(
   authController.loginUser
 );
 
+router.post("/refresh-token", authController.refreshAccessToken);
+
+// Protected routes
 router.post(
   "/logout",
-  passport.authenticate("jwt", { session: false }),
+  authorizeRoles(), // any authenticated user
   authController.logoutUser
 );
-router.post("/refresh-token", authController.refreshAccessToken);
+
+router.get(
+  "/me",
+  authorizeRoles(), // any authenticated user
+  authController.getMe
+);
+
 router.get(
   "/admin-only",
-  passport.authenticate("jwt", { session: false }),
-  authorizeRoles("Admin"),
+  authorizeRoles("Admin"), // only Admins
   (req, res) => {
-    res.json({ message: "Welcome Admin!" });
+    res.json({ message: "Welcome Admin!", user: req.user });
   }
 );
 

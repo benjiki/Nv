@@ -1,20 +1,31 @@
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-function App() {
-  const [message, setMessage] = useState("");
+// import { useEffect, useState } from "react";
+import { Route, Routes } from "react-router";
+import RegForm from "./pages/Auth/Reg";
+import { GuestRoute, PrivateRoute } from "./PageGuards";
+import { Toaster } from "sonner";
 
-  useEffect(() => {
-    fetch("/api/hello")
-      .then((res) => res.json())
-      .then((data) => setMessage(data.message));
-  }, []);
+import Home from "./pages/main/home";
+function App() {
+  // const [message, setMessage] = useState("");
+
+  // useEffect(() => {
+  //   fetch("/api/hello")
+  //     .then((res) => res.json())
+  //     .then((data) => setMessage(data.message));
+  // }, []);
 
   return (
-    <div>
-      <h1>Electron + Vite + React + Express</h1>
-      <p>{message}</p>
-      <Button>Click me</Button>
-    </div>
+    <>
+      <Routes>
+        <Route element={<PrivateRoute />}>
+          <Route path="/" element={<Home />} />
+        </Route>
+        <Route element={<GuestRoute />}>
+          <Route path="/auth" element={<RegForm />} />
+        </Route>
+      </Routes>
+      <Toaster />
+    </>
   );
 }
 

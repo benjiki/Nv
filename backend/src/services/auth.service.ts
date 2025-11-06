@@ -5,6 +5,7 @@ import { generateAccessToken, generateRefreshToken } from "../utils/token";
 import bcrypt from "bcrypt";
 
 // Registration
+
 export const regUserService = async (data: {
   phoneNumber: string;
   password: string;

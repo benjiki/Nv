@@ -14,13 +14,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# === OS / Editor ===
-.vscode/
-.idea/
-*.swp
-*.swo
-*.bak
-*.log
+
 
 # === Frontend (React/Vite/Next/etc.) ===
 frontend/node_modules/
@@ -52,19 +46,9 @@ release/
 *.asar
 *.asar.unpacked/
 
-# === Miscellaneous ===
-# Mac system files
-*.DS_Store
 
-# Windows system files
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-
-
-# === Optional: test coverage reports ===
-coverage/
-*.lcov
 
 
 dist_electron
+
+/backend/prisma/dev.db
