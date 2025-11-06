@@ -40,3 +40,28 @@ export const accountholderUpdate = async (req: Request, res: Response) => {
     res.status(201).json(new ApiSuccess(accountHolder, "Account holder updated successfully"));
 
 }
+
+export const getAllAccountHoldersController = async (req: Request, res: Response) => {
+
+    const accountHolders = await AccountService.getAllAccountHoldersService()
+
+    res.status(200).json(new ApiSuccess(accountHolders))
+}
+
+export const getAccountHolderController = async (req: Request, res: Response) => {
+    const { error: paramError, value: paramValue } = accountHolderParamSchema.validate(req.params);
+
+    if (paramError) {
+        const messages = [
+            ...(paramError?.details.map((err) => err.message) || [])
+        ];
+        return res.status(400).json({
+            error: messages.join(", "),
+        });
+    }
+
+    const accountHolder = await AccountService.getAccountHolderService({ id: paramValue.id })
+
+    res.status(200).json(new ApiSuccess(accountHolder))
+}
+

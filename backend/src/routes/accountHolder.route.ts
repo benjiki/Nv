@@ -5,7 +5,8 @@ const router = express.Router()
 
 router.post("/create", AccountHolder.accountholderCreate)
 router.put("/update/:id", AccountHolder.accountholderUpdate)
-
+router.get("/:id", AccountHolder.getAccountHolderController)
+router.get("/", AccountHolder.getAllAccountHoldersController)
 
 
 export default router
