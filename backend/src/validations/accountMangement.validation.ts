@@ -39,6 +39,36 @@ export const loanAccountManagmentSchema = Joi.object({
 }).unknown(false)
 
 
+export const transferAccountManagmentSchema = Joi.object({
+    senderId: Joi.number().required().messages({
+        "any.required": "senderId is required",
+        "number.base": "senderId must be a number",
+    }),
+    receiverId: Joi.number().required().messages({
+        "any.required": "receiverId is required",
+        "number.base": "receiverId must be a number",
+    }),
+    amount: Joi.number().required().messages({
+        "any.required": "Amount is required",
+        "number.base": "Amount must be a number",
+    }),
+}).unknown(false)
+
+
+export const repaymentAccountManagmentSchema = Joi.object({
+    loanId: Joi.number().required().messages({
+        "any.required": "loanId is required",
+        "number.base": "loanId must be a number",
+    }),
+    payerId: Joi.number().required().messages({
+        "any.required": "payerId is required",
+        "number.base": "payerId must be a number",
+    }),
+    amount: Joi.number().required().messages({
+        "any.required": "Amount is required",
+        "number.base": "Amount must be a number",
+    }),
+}).unknown(false)
 
 export const accountManagmentParamSchema = Joi.object({
     id: Joi.number().integer().required().messages({

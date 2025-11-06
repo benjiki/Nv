@@ -1,5 +1,5 @@
 // src/prismaClient.ts
-import { PrismaClient, UserRoles } from "./generated/prisma/index.js";
+import { PrismaClient, UserRoles, LoanStatus } from "./generated/prisma/index.js";
 
 
 declare global {
@@ -13,4 +13,4 @@ if (process.env.NODE_ENV !== "production") {
   globalThis.prisma = prisma;
 }
 
-export { UserRoles };
+export { UserRoles, LoanStatus };

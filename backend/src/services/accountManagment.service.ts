@@ -1,4 +1,5 @@
-import { prisma } from "../prismaClient.js"
+import { Decimal } from "@prisma/client/runtime/library";
+import { prisma, LoanStatus } from "../prismaClient.js"
 import { ApiError } from "../utils/ApiError.js";
 
 export const createDepositService = async (data: {
@@ -67,7 +68,7 @@ export const createLoanService = async (data: {
             data: {
                 lenderId: data.lenderId,
                 borrowerId: data.borrowerId,
-                amount: data.amount,
+                amount: totalAmount,
                 interestRate: data.interestRate,
                 dueDate: data.dueDate || new Date(),
             },
@@ -75,4 +76,161 @@ export const createLoanService = async (data: {
     });
 
     return loan;
+};
+
+
+export const createTransferService = async (data: {
+    senderId: number;
+    receiverId: number;
+    amount: number;
+}) => {
+    if (data.senderId === data.receiverId)
+        throw new ApiError(400, "Sender and receiver cannot be the same");
+
+    const sender = await prisma.accountholder.findUnique({ where: { id: data.senderId } });
+    const receiver = await prisma.accountholder.findUnique({ where: { id: data.receiverId } });
+
+    if (!sender || !receiver) throw new ApiError(404, "Sender or receiver not found");
+    // if (sender.balance < data.amount) throw new ApiError(400, "Insufficient funds");
+    if (sender.balance.lt(new Decimal(data.amount))) {
+        throw new ApiError(400, "Insufficient funds");
+    }
+    const transfer = await prisma.$transaction(async (tx) => {
+        // Deduct from sender
+        await tx.accountholder.update({
+            where: { id: data.senderId },
+            data: { balance: { decrement: data.amount } },
+        });
+
+        // Credit receiver
+        await tx.accountholder.update({
+            where: { id: data.receiverId },
+            data: { balance: { increment: data.amount } },
+        });
+
+        // Create transfer record
+        return tx.transfer.create({
+            data: {
+                senderId: data.senderId,
+                receiverId: data.receiverId,
+                amount: data.amount,
+            },
+        });
+    });
+
+    return transfer;
+};
+
+
+
+
+
+export const createRepaymentService = async (data: {
+    loanId: number;
+    payerId: number;
+    amount: number;
+}) => {
+    // ✅ Validate loan and payer
+    const loan = await prisma.loan.findUnique({
+        where: { id: data.loanId },
+        include: { lender: true, borrower: true },
+    });
+
+    if (!loan) throw new ApiError(404, "Loan not found");
+
+    const payer = await prisma.accountholder.findUnique({
+        where: { id: data.payerId },
+    });
+    if (!payer) throw new ApiError(404, "Payer not found");
+
+    // ✅ Check loan status
+    if (loan.status === LoanStatus.REPAID) {
+        throw new ApiError(400, "This loan has already been fully repaid");
+    }
+
+    if (loan.status === LoanStatus.DEFAULTED) {
+        throw new ApiError(400, "This loan is defaulted and cannot accept repayments");
+    }
+
+    // ✅ Check if payer has enough balance
+    if (payer.balance.lt(new Decimal(data.amount))) {
+        throw new ApiError(400, "Insufficient funds");
+    }
+
+    // ✅ Calculate remaining debt
+    const totalRepaid = await prisma.repayment.aggregate({
+        _sum: { amount: true },
+        where: { loanId: data.loanId },
+    });
+
+    const totalRepaidAmount = totalRepaid._sum.amount || new Decimal(0);
+    const remainingDebt = loan.amount.sub(totalRepaidAmount);
+
+    if (remainingDebt.lte(new Decimal(0))) {
+        throw new ApiError(400, "No outstanding debt for this loan");
+    }
+
+    // ✅ Prevent overpayment
+    if (new Decimal(data.amount).gt(remainingDebt)) {
+        throw new ApiError(
+            400,
+            `Your remaining debt is ${remainingDebt.toFixed(2)}, not ${data.amount}`
+        );
+    }
+
+    // ✅ Check if user has taken another loan after this one
+    const newerLoan = await prisma.loan.findFirst({
+        where: {
+            borrowerId: data.payerId,
+            id: { not: loan.id },
+            createdAt: { gt: loan.createdAt },
+            status: { in: [LoanStatus.PENDING, LoanStatus.ACTIVE] },
+        },
+        orderBy: { createdAt: "desc" },
+    });
+
+    if (newerLoan) {
+        throw new ApiError(
+            400,
+            "You have already taken another active loan. Repay the current active loan instead."
+        );
+    }
+
+    // ✅ Proceed with repayment in transaction
+    const repayment = await prisma.$transaction(async (tx) => {
+        // Deduct from payer
+        await tx.accountholder.update({
+            where: { id: data.payerId },
+            data: { balance: { decrement: data.amount } },
+        });
+
+        // Credit lender
+        await tx.accountholder.update({
+            where: { id: loan.lenderId },
+            data: { balance: { increment: data.amount } },
+        });
+
+        // Record repayment
+        const newRepayment = await tx.repayment.create({
+            data: {
+                loanId: data.loanId,
+                payerId: data.payerId,
+                amount: data.amount,
+            },
+        });
+
+        // Check if loan is now fully paid
+        const updatedTotal = totalRepaidAmount.add(new Decimal(data.amount));
+
+        if (updatedTotal.gte(loan.amount)) {
+            await tx.loan.update({
+                where: { id: data.loanId },
+                data: { status: LoanStatus.REPAID },
+            });
+        }
+
+        return newRepayment;
+    });
+
+    return repayment;
 };
