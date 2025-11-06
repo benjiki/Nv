@@ -4,7 +4,7 @@ import {
   ExtractJwt,
   StrategyOptions,
 } from "passport-jwt";
-import { prisma } from "../prismaClient";
+import { prisma } from "../prismaClient.js";
 import { PassportStatic } from "passport";
 
 const options: StrategyOptions = {

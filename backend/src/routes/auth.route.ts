@@ -1,11 +1,11 @@
 // apps/auth-service/src/routes/auth.route.ts
 import express, { Router } from "express";
 
-import { authorizeRoles } from "../middleware/authorizeRoles";
-import { validateRequest } from "../middleware/validateRequest";
+import { authorizeRoles } from "../middleware/authorizeRoles.js";
+import { validateRequest } from "../middleware/validateRequest.js";
 
-import * as authController from "../controllers/auth.controller";
-import * as validation from "../validations/auth.validations";
+import * as authController from "../controllers/auth.controller.js";
+import * as validation from "../validations/auth.validations.js";
 
 const router: Router = express.Router();
 

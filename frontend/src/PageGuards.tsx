@@ -13,7 +13,7 @@ export function PrivateRoute() {
       </div>
     );
   }
-  if (isError || !user) return <Navigate to={"/auth"} />;
+  if (isError || !user) return <Navigate to={"/auth/login"} />;
 
   return <Outlet />;
 }

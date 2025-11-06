@@ -29,7 +29,7 @@ api.interceptors.response.use(
         const originalRequest = error.config;
 
         // If unauthorized and not retried yet
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
             if (isRefreshing) {
                 // Wait for the refresh to complete
                 return new Promise(function (resolve, reject) {

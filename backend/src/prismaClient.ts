@@ -1,5 +1,6 @@
 // src/prismaClient.ts
-import { PrismaClient, UserRoles } from "./generated/prisma";
+import { PrismaClient, UserRoles } from "./generated/prisma/index.js";
+
 
 declare global {
   // eslint-disable-next-line no-var

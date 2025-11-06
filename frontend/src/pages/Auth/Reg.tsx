@@ -18,6 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useNavigate } from "react-router";
 
 const regSchema = z.object({
   phoneNumber: z
@@ -33,6 +34,8 @@ const regSchema = z.object({
 type RegFormData = z.infer<typeof regSchema>;
 
 const RegForm: React.FC = () => {
+  const navigate = useNavigate();
+
   const form = useForm<RegFormData>({
     resolver: zodResolver(regSchema),
   });
@@ -47,8 +50,9 @@ const RegForm: React.FC = () => {
       }
 
       // Store tokens
-      queryClient.invalidateQueries(["auth"]);
+      queryClient.refetchQueries({ queryKey: ["auth"] });
       toast.success(data.message || "Account created successfully!");
+      navigate("/");
     },
     onError: (error) => {
       const axiosError = error as AxiosError<{
@@ -76,48 +80,66 @@ const RegForm: React.FC = () => {
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="phoneNumber"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Phone Number</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter phone number" {...field} />
-              </FormControl>
-              <FormDescription>
-                We'll use your phone number to verify your account.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <div className="relative w-full h-screen overflow-hidden">
+      {/* 🔹 Background image */}
+      <div className="absolute inset-0 bg-[url('/assets/nvBack.jpg')] bg-cover bg-center blur-md"></div>
 
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input
-                  type="password"
-                  placeholder="Enter password"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      {/* 🔹 Optional dark overlay for contrast */}
+      <div className="absolute inset-0 bg-black/10"></div>
 
-        <Button type="submit" disabled={mutation.isPending}>
-          {mutation.isPending ? "Submitting..." : "Submit"}
-        </Button>
-      </form>
-    </Form>
+      {/* 🔹 Foreground (form) */}
+      <div className="relative z-10 flex items-center justify-center h-full">
+        <div className="backdrop-blur-lg bg-white/20 p-10 rounded-xl shadow-lg">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="phoneNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Phone Number</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter phone number"
+                        {...field}
+                        autoComplete="off"
+                        autoCorrect="false"
+                      />
+                    </FormControl>
+                    <FormDescription className="text-gray-200">
+                      We'll use your phone number to verify your account.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="Enter password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button type="submit" disabled={mutation.isPending}>
+                {mutation.isPending ? "Submitting..." : "Submit"}
+              </Button>
+            </form>
+          </Form>
+        </div>
+      </div>
+    </div>
   );
 };
 

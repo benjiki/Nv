@@ -1,7 +1,7 @@
 // /src/controllers/auth.controller.ts
 import { Request, Response } from "express";
-import * as auth from "../services/auth.service";
-import { UserRoles, prisma } from "../prismaClient";
+import * as auth from "../services/auth.service.js";
+import { UserRoles, prisma } from "../prismaClient.js";
 export const registerUser = async (req: Request, res: Response) => {
   try {
     const user = await auth.regUserService(req.body);

@@ -4,9 +4,9 @@ import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import passport from "passport";
 // import { configurePassport } from "./passport/jwt.strategy";
-import { configurePassport } from "./passport/jwt.strategy";
-import authRoutes from "./routes/auth.route"; // ✅ Your route file
-import { ApiError } from "./utils/ApiError";
+import { configurePassport } from "./passport/jwt.strategy.js";
+import authRoutes from "./routes/auth.route.js"; // ✅ Your route file
+import { ApiError } from "./utils/ApiError.js";
 
 dotenv.config();
 
@@ -24,7 +24,7 @@ app.get("/api/hello", (req, res) => {
 app.use("/api/auth", authRoutes);
 
 // ✅ Health check
-app.get("/", (req, res) => {
+app.get("/health", (req, res) => {
   res.send("Auth Service is running 🚀");
 });
 

@@ -5,6 +5,7 @@ import { GuestRoute, PrivateRoute } from "./PageGuards";
 import { Toaster } from "sonner";
 
 import Home from "./pages/main/home";
+import LoginForm from "./pages/Auth/Login";
 function App() {
   // const [message, setMessage] = useState("");
 
@@ -21,7 +22,8 @@ function App() {
           <Route path="/" element={<Home />} />
         </Route>
         <Route element={<GuestRoute />}>
-          <Route path="/auth" element={<RegForm />} />
+          <Route path="/auth/reg" element={<RegForm />} />
+          <Route path="/auth/login" element={<LoginForm />} />
         </Route>
       </Routes>
       <Toaster />

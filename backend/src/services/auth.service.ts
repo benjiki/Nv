@@ -1,7 +1,7 @@
 // apps/auth-service/src/services/auth.service.ts
-import { UserRoles, prisma } from "../prismaClient";
+import { UserRoles, prisma } from "../prismaClient.js";
 import jwt from "jsonwebtoken";
-import { generateAccessToken, generateRefreshToken } from "../utils/token";
+import { generateAccessToken, generateRefreshToken } from "../utils/token.js";
 import bcrypt from "bcrypt";
 
 // Registration
