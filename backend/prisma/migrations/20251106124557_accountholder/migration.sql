@@ -1,0 +1,54 @@
+-- CreateTable
+CREATE TABLE "Accountholder" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "name" TEXT NOT NULL,
+    "balance" DECIMAL NOT NULL DEFAULT 0.0,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "Deposit" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "userId" INTEGER NOT NULL,
+    "amount" DECIMAL NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Deposit_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Accountholder" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "Loan" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "lenderId" INTEGER NOT NULL,
+    "borrowerId" INTEGER NOT NULL,
+    "amount" DECIMAL NOT NULL,
+    "interestRate" REAL NOT NULL DEFAULT 0.0,
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "dueDate" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "Loan_lenderId_fkey" FOREIGN KEY ("lenderId") REFERENCES "Accountholder" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Loan_borrowerId_fkey" FOREIGN KEY ("borrowerId") REFERENCES "Accountholder" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "Transfer" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "senderId" INTEGER NOT NULL,
+    "receiverId" INTEGER NOT NULL,
+    "amount" DECIMAL NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Transfer_senderId_fkey" FOREIGN KEY ("senderId") REFERENCES "Accountholder" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Transfer_receiverId_fkey" FOREIGN KEY ("receiverId") REFERENCES "Accountholder" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "Repayment" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "loanId" INTEGER NOT NULL,
+    "payerId" INTEGER NOT NULL,
+    "amount" DECIMAL NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Repayment_loanId_fkey" FOREIGN KEY ("loanId") REFERENCES "Loan" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Repayment_payerId_fkey" FOREIGN KEY ("payerId") REFERENCES "Accountholder" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);

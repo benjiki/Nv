@@ -28,3 +28,69 @@ model User {
 enum UserRoles {
   Admin
 }
+
+model Accountholder {
+  id            Int         @id @default(autoincrement())
+  name          String
+  balance       Decimal     @default(0.0)
+  accountNumber String      @default("10000")
+  deposits      Deposit[]
+  loansGiven    Loan[]      @relation("LoansGiven")
+  loansTaken    Loan[]      @relation("LoansTaken")
+  transfersOut  Transfer[]  @relation("TransfersOut")
+  transfersIn   Transfer[]  @relation("TransfersIn")
+  repayments    Repayment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Deposit {
+  id        Int           @id @default(autoincrement())
+  user      Accountholder @relation(fields: [userId], references: [id])
+  userId    Int
+  amount    Decimal
+  createdAt DateTime      @default(now())
+}
+
+model Loan {
+  id           Int           @id @default(autoincrement())
+  lender       Accountholder @relation("LoansGiven", fields: [lenderId], references: [id])
+  lenderId     Int
+  borrower     Accountholder @relation("LoansTaken", fields: [borrowerId], references: [id])
+  borrowerId   Int
+  amount       Decimal
+  interestRate Float         @default(0.0)
+  status       LoanStatus    @default(PENDING)
+  dueDate      DateTime?
+  repayments   Repayment[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Transfer {
+  id         Int           @id @default(autoincrement())
+  sender     Accountholder @relation("TransfersOut", fields: [senderId], references: [id])
+  senderId   Int
+  receiver   Accountholder @relation("TransfersIn", fields: [receiverId], references: [id])
+  receiverId Int
+  amount     Decimal
+  createdAt  DateTime      @default(now())
+}
+
+model Repayment {
+  id        Int           @id @default(autoincrement())
+  loan      Loan          @relation(fields: [loanId], references: [id])
+  loanId    Int
+  payer     Accountholder @relation(fields: [payerId], references: [id])
+  payerId   Int
+  amount    Decimal
+  createdAt DateTime      @default(now())
+}
+
+enum LoanStatus {
+  PENDING
+  ACTIVE
+  REPAID
+  DEFAULTED
+}
