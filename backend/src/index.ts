@@ -6,7 +6,8 @@ import passport from "passport";
 // import { configurePassport } from "./passport/jwt.strategy";
 import { configurePassport } from "./passport/jwt.strategy.js";
 import authRoutes from "./routes/auth.route.js"; // ✅ Your route file
-import accountHolderRoutes from "./routes/accountHolder.route.js"
+import accountHolderRoutes from "./routes/accountHolder.route.js";
+import accountManagementRoutes from "./routes/accountManagement.route.js";
 import { ApiError } from "./utils/ApiError.js";
 
 dotenv.config();
@@ -24,7 +25,7 @@ app.get("/api/hello", (req, res) => {
 // ✅ Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/account", accountHolderRoutes)
-
+app.use("/api/account-managment", accountManagementRoutes)
 // ✅ Health check
 app.get("/health", (req, res) => {
   res.send("Auth Service is running 🚀");
