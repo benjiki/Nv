@@ -65,7 +65,7 @@ const LoginForm: React.FC = () => {
         axiosError.response?.data?.message || // For Joi or custom message
         axiosError.response?.data?.errors?.join(", ") || // For validation arrays
         axiosError.response?.data?.error || // For your backend "error" field
-        "Registration failed"; // fallback
+        "Login failed"; // fallback
 
       toast.error(msg);
     },
@@ -76,12 +76,6 @@ const LoginForm: React.FC = () => {
   };
   return (
     <div className="relative w-full h-screen overflow-hidden">
-      {/* 🔹 Background image */}
-      <div className="absolute inset-0 bg-[url('/assets/nvBack.jpg')] bg-cover bg-center blur-md"></div>
-
-      {/* 🔹 Optional dark overlay for contrast */}
-      <div className="absolute inset-0 bg-black/10"></div>
-
       {/* 🔹 Foreground (form) */}
       <div className="relative z-10 flex items-center justify-center h-full">
         <div className="backdrop-blur-lg bg-white/20 p-10 rounded-xl shadow-lg">
@@ -92,16 +86,19 @@ const LoginForm: React.FC = () => {
                 name="phoneNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white">Phone Number</FormLabel>
+                    <FormLabel className="text-foreground">
+                      Phone Number 🤙
+                    </FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Enter phone number"
                         {...field}
                         autoComplete="off"
                         autoCorrect="false"
+                        className="border-0 border-b-2 border-muted-foreground rounded-none focus-visible:ring-0 focus:border-primary"
                       />
                     </FormControl>
-                    <FormDescription className="text-gray-200">
+                    <FormDescription className="text-secondary-foreground">
                       We'll use your phone number to verify your account.
                     </FormDescription>
                     <FormMessage />
@@ -114,12 +111,15 @@ const LoginForm: React.FC = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white">Password</FormLabel>
+                    <FormLabel className="text-foreground">
+                      Password 🔑
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="password"
                         placeholder="Enter password"
                         {...field}
+                        className="border-0 border-b-2 border-muted-foreground rounded-none focus-visible:ring-0 focus:border-primary"
                       />
                     </FormControl>
                     <FormMessage />
