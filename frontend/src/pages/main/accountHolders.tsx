@@ -1,7 +1,8 @@
 import Loader from "@/components/Loader";
 import { useAccountHolders } from "@/hooks/useAccountHolder";
 const AccountHolders = () => {
-  const { data, isLoading, isError, error, refetch } = useAccountHolders();
+  // isError, error, refetch
+  const { data, isLoading } = useAccountHolders();
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">

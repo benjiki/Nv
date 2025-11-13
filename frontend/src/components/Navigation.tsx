@@ -1,7 +1,6 @@
 import {
   NavigationMenu,
   NavigationMenuContent,
-  NavigationMenuIndicator,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
@@ -9,10 +8,10 @@ import {
   NavigationMenuViewport,
 } from "@/components/ui/navigation-menu";
 import { Link } from "react-router";
-import Logout from "./Logout";
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
+import { Home } from "lucide-react";
 
 const Navigation = () => {
   const queryClient = useQueryClient();
@@ -28,6 +27,13 @@ const Navigation = () => {
   return (
     <NavigationMenu>
       <NavigationMenuList>
+        <NavigationMenuItem>
+          <NavigationMenuLink asChild>
+            <Link to="/">
+              <Home />
+            </Link>
+          </NavigationMenuLink>
+        </NavigationMenuItem>
         {/* Account Holders */}
         <NavigationMenuItem>
           <NavigationMenuTrigger>Account Holders</NavigationMenuTrigger>
@@ -36,7 +42,7 @@ const Navigation = () => {
               <li>
                 <NavigationMenuLink asChild>
                   <Link
-                    to="/holders/overview"
+                    to="/accountholders"
                     className="block select-none rounded-md p-3 leading-tight no-underline outline-hidden transition-colors hover:bg-accent hover:text-accent-foreground focus:shadow-md"
                   >
                     <div className="text-sm font-medium leading-none">
