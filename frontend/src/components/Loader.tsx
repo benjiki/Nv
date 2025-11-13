@@ -2,13 +2,13 @@ import { DotLoader } from "react-spinners";
 import React from "react";
 
 type LoaderProps = {
-  color: string;
-  loading: boolean;
+  color?: string;
+  loading?: boolean;
 };
 
 const Loader: React.FC<LoaderProps> = ({
   color = "#6F4E37",
-  loading = false,
+  loading = true,
 }) => {
   return (
     <div className="sweet-loading">

@@ -6,20 +6,17 @@ import { Toaster } from "sonner";
 
 import Home from "./pages/main/home";
 import LoginForm from "./pages/Auth/Login";
+import AccountHolders from "./pages/main/accountHolders";
+import Layout from "./pages/main/layout";
 function App() {
-  // const [message, setMessage] = useState("");
-
-  // useEffect(() => {
-  //   fetch("/api/hello")
-  //     .then((res) => res.json())
-  //     .then((data) => setMessage(data.message));
-  // }, []);
-
   return (
     <>
       <Routes>
         <Route element={<PrivateRoute />}>
-          <Route path="/" element={<Home />} />
+          <Route element={<Layout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/accountholders" element={<AccountHolders />} />
+          </Route>
         </Route>
         <Route element={<GuestRoute />}>
           <Route path="/auth/reg" element={<RegForm />} />
