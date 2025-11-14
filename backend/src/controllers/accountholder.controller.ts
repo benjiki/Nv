@@ -3,6 +3,7 @@ import { ApiError, ApiSuccess } from "../utils/ApiError.js"
 import { createAccountHolderSchema, updateAccountHolderSchema, accountHolderParamSchema } from "../validations/accountHolder.validation.js"
 import { Request, Response } from "express"
 import * as AccountService from "../services/acountHolder.service.js"
+import { io } from "../index.js";
 
 export const accountholderCreate = async (req: Request, res: Response) => {
     const { error, value } = createAccountHolderSchema.validate(req.body, {
@@ -13,6 +14,7 @@ export const accountholderCreate = async (req: Request, res: Response) => {
         throw new ApiError(400, messages.join(", "));
     }
     const accountHolder = await AccountService.accountHolderCreateService(value)
+    io.emit("accountHoldersUpdated");
     res.status(201).json(new ApiSuccess(accountHolder, "Account holder created successfully"));
 }
 
@@ -36,7 +38,7 @@ export const accountholderUpdate = async (req: Request, res: Response) => {
         id: paramValue.id,
         ...bodyValue
     });
-
+    io.emit("accountHoldersUpdated");
     res.status(201).json(new ApiSuccess(accountHolder, "Account holder updated successfully"));
 
 }

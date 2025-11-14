@@ -1,0 +1,10 @@
+/.prettierignore
+/backend/node_modules
+/backend/dist
+/frontend/node_modules
+/frontend/dist
+/frontend/public
+
+/electron/node_modules
+/electron/dist
+/node_modules
