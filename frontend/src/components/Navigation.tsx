@@ -21,7 +21,7 @@ const Navigation = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     queryClient.setQueryData(["auth"], null);
-    // Optionally force reload to reset all queries
+
     navigate("/auth/login");
   };
   return (
