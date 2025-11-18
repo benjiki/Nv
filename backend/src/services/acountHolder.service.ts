@@ -140,26 +140,25 @@ export const getAllAccountHoldersService = async (data: {
 }) => {
     const page = data.page ?? 1;  // default to page 1
     const limit = data.limit ?? 10; // default to 10 items per page
+
+    const filters = {
+        AND: [
+            data.name
+                ? { name: { contains: data.name } }
+                : {},
+            data.accountNumber
+                ? { accountNumber: { contains: data.accountNumber } }
+                : {},
+        ],
+    };
+    const total = await prisma.accountholder.count({
+        where: filters,
+    });
+
     const accountHolders = await prisma.accountholder.findMany({
         skip: (page - 1) * limit,
         take: limit,
-        where: {
-            AND: [
-                data.name
-                    ? {
-                        name: { contains: data.name }
-
-                    }
-                    : {},
-                data.accountNumber
-                    ? {
-                        accountNumber: {
-                            contains: data.accountNumber,
-                        },
-                    }
-                    : {},
-            ],
-        },
+        where: filters,
         orderBy: { createdAt: "desc" },
         include: {
             deposits: true,
@@ -171,7 +170,8 @@ export const getAllAccountHoldersService = async (data: {
         },
     });
 
-    return accountHolders.map((ah) => {
+
+    const formatted = accountHolders.map((ah) => {
         // Total deposits
         const depositsAmount = ah.deposits.reduce((sum, d) => sum + Number(d.amount), 0);
 
@@ -207,4 +207,9 @@ export const getAllAccountHoldersService = async (data: {
             repaymentsAmount,
         };
     });
+
+    return {
+        data: formatted,
+        total
+    }
 };

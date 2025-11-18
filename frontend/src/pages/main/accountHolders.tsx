@@ -29,7 +29,7 @@ const AccountHolders = () => {
       </div>
     );
   }
-  if (!data) {
+  if (!data || !data.data) {
     return <h1>no Accounts found</h1>;
   }
   return (

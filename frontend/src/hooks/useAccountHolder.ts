@@ -22,7 +22,7 @@ export const useAccountHolders = (filters?: AccountHolderFilter) => {
     return useQuery({
         queryKey: ["accountHolders", filters],
         queryFn: () => accountHolderService.getAllAccountHolders(filters),
-        placeholderData: (prevData) => prevData, // ← retains previous data while loading
+        placeholderData: (prev) => prev ?? { data: [], total: 0 },
         staleTime: 5000, // optional
     });
 };
