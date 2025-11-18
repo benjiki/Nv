@@ -17,3 +17,15 @@ export interface ApiResponse<T> {
     data: T;
     timestamp: string;
 }
+
+export type AccountHolderFilter = {
+    name?: string;
+    accountNumber?: string;
+    page?: number;
+    limit?: number;
+};
+
+export interface AccountHolderResponse {
+    data: AccountHolder[];
+    total: number;
+}

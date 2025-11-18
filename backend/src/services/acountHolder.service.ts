@@ -132,8 +132,34 @@ export const getAccountHolderService = async (data: { id: number }) => {
 
 
 // Fetch all account holders
-export const getAllAccountHoldersService = async () => {
+export const getAllAccountHoldersService = async (data: {
+    name?: string,
+    accountNumber?: string
+    page?: number
+    limit?: number
+}) => {
+    const page = data.page ?? 1;  // default to page 1
+    const limit = data.limit ?? 10; // default to 10 items per page
     const accountHolders = await prisma.accountholder.findMany({
+        skip: (page - 1) * limit,
+        take: limit,
+        where: {
+            AND: [
+                data.name
+                    ? {
+                        name: { contains: data.name }
+
+                    }
+                    : {},
+                data.accountNumber
+                    ? {
+                        accountNumber: {
+                            contains: data.accountNumber,
+                        },
+                    }
+                    : {},
+            ],
+        },
         orderBy: { createdAt: "desc" },
         include: {
             deposits: true,

@@ -29,3 +29,10 @@ export const accountHolderParamSchema = Joi.object({
         "number.base": "ID must be a number",
     }),
 }).unknown(false);
+
+export const accountHolderQueryFiltterSchema = Joi.object({
+    name: Joi.string(),
+    accountNumber: Joi.string(),
+    page: Joi.number(),
+    limit: Joi.number()
+}).unknown(false);
