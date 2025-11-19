@@ -10,7 +10,17 @@ import {
 
 export default function Breadcrumb() {
   const location = useLocation();
-  const segments = location.pathname.split("/").filter(Boolean);
+  const segments = location.pathname
+    .split("/")
+    .filter(Boolean)
+    .filter((seg) => !/^\d+$/.test(seg)); // remove numeric IDs
+
+  // Map segment keys to friendly names
+  const segmentNameMap: Record<string, string> = {
+    accountholders: "Account Holders",
+    edit: "Edit",
+    create: "Create",
+  };
 
   return (
     <BreadcrumbContainer>
@@ -24,6 +34,7 @@ export default function Breadcrumb() {
         {segments.map((segment, index) => {
           const href = "/" + segments.slice(0, index + 1).join("/");
           const isLast = index === segments.length - 1;
+          const name = segmentNameMap[segment] || segment.replace(/-/g, " ");
 
           return (
             <div className="flex items-center" key={href}>
@@ -31,10 +42,10 @@ export default function Breadcrumb() {
 
               <BreadcrumbItem>
                 {isLast ? (
-                  <BreadcrumbPage>{segment.replace(/-/g, " ")}</BreadcrumbPage>
+                  <BreadcrumbPage>{name}</BreadcrumbPage>
                 ) : (
                   <BreadcrumbLink asChild>
-                    <Link to={href}>{segment.replace(/-/g, " ")}</Link>
+                    <Link to={href}>{name}</Link>
                   </BreadcrumbLink>
                 )}
               </BreadcrumbItem>
