@@ -33,6 +33,10 @@ export const accountHolderService = {
     updateAccountHolder: async (id: number, data: { name: string; accountNumber: string }) => {
         const res = await api.put(`/account/update/${id}`, data);
         return res.data; // { status, message, error }
+    },
+    deleteAccountHolder: async (id: number) => {
+        const response = await api.delete(`/account/${id}`);
+        return response.data
     }
 
 };

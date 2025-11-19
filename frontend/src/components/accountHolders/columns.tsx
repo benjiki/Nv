@@ -11,6 +11,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
+import Delete from "./delete";
+import { useState } from "react";
 
 export const columns: ColumnDef<AccountHolder>[] = [
   {
@@ -130,6 +132,7 @@ export const columns: ColumnDef<AccountHolder>[] = [
     cell: ({ row }) => {
       const account = row.original;
       const navigate = useNavigate();
+      const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -155,7 +158,19 @@ export const columns: ColumnDef<AccountHolder>[] = [
             >
               Edit
             </DropdownMenuItem>
-            <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.preventDefault(); // prevent menu from closing immediately
+                setDeleteDialogOpen(true); // open your dialog manually
+              }}
+            >
+              <p className="text-red-600">Delete</p>
+            </DropdownMenuItem>
+            <Delete
+              id={account.id}
+              open={deleteDialogOpen}
+              onOpenChange={setDeleteDialogOpen}
+            />
           </DropdownMenuContent>
         </DropdownMenu>
       );
