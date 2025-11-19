@@ -12,6 +12,11 @@ export interface AccountHolder {
     repaymentsAmount: number;
 }
 
+export interface AccountHolderStats {
+    countAccountHoldersWithDebts: number;
+    countAllAccountHoders: number;
+}
+
 export interface ApiResponse<T> {
     success: boolean;
     data: T;
@@ -29,3 +34,4 @@ export interface AccountHolderResponse {
     data: AccountHolder[];
     total: number;
 }
+

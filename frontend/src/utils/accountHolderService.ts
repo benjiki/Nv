@@ -1,5 +1,5 @@
 import api from "./api";
-import type { AccountHolderFilter, AccountHolderResponse, ApiResponse } from "../../types";
+import type { AccountHolderFilter, AccountHolderResponse, AccountHolderStats, ApiResponse } from "../../types";
 
 export const accountHolderService = {
     getAllAccountHolders: async (filters?: AccountHolderFilter): Promise<AccountHolderResponse> => {
@@ -15,4 +15,9 @@ export const accountHolderService = {
 
         return response.data.data;
     },
+
+    getAccountHolderStats: async () => {
+        const response = await api.get<ApiResponse<AccountHolderStats>>("/account/stats")
+        return response.data.data;
+    }
 };
