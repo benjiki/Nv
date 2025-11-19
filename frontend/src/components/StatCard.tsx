@@ -13,7 +13,7 @@ interface StatCardProps {
 const StatCard = ({ items, className }: StatCardProps) => {
   return (
     <Card
-      className={`flex flex-row items-center justify-center p-4 gap-6 ${className}`}
+      className={`flex flex-row items-center justify-center p-4 gap-6 bg-background ${className}`}
     >
       {items.map((item, index) => (
         <div key={index} className="flex flex-row items-center gap-6">

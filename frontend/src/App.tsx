@@ -1,4 +1,4 @@
-import { Route, Routes, useLocation } from "react-router";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import RegForm from "./pages/Auth/Reg";
 import { GuestRoute, PrivateRoute } from "./PageGuards";
@@ -6,9 +6,10 @@ import { Toaster } from "sonner";
 
 import Home from "./pages/main/home";
 import LoginForm from "./pages/Auth/Login";
-import AccountHolders from "./pages/main/accountHolders";
+import AccountHolders from "./pages/main/accontHolders/accountHolders";
 import Layout from "./pages/main/layout";
 import PageWrapper from "./components/PageWrapper";
+import CreateAccHolder from "./pages/main/accontHolders/createAccHolder";
 
 function App() {
   const location = useLocation();
@@ -33,6 +34,14 @@ function App() {
                 element={
                   <PageWrapper>
                     <AccountHolders />
+                  </PageWrapper>
+                }
+              />
+              <Route
+                path="/accountholders/Create"
+                element={
+                  <PageWrapper>
+                    <CreateAccHolder />
                   </PageWrapper>
                 }
               />

@@ -1,6 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 
 const Home: React.FC = () => {
   const { data: user, isLoading } = useAuth();

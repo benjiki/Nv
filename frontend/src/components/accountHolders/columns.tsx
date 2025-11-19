@@ -75,7 +75,7 @@ export const columns: ColumnDef<AccountHolder>[] = [
   },
   {
     accessorKey: "transfersInAmount",
-    header: "Tran In",
+    header: () => <div className="text-right">Tran In</div>,
     cell: ({ row }) => {
       const balanceAmount = parseFloat(row.getValue("transfersInAmount") ?? 0);
       const formatted = new Intl.NumberFormat("en-US", {
@@ -87,7 +87,7 @@ export const columns: ColumnDef<AccountHolder>[] = [
   },
   {
     accessorKey: "transfersOutAmount",
-    header: "Tran Out",
+    header: () => <div className="text-right">Tran Out</div>,
     cell: ({ row }) => {
       const balanceAmount = parseFloat(row.getValue("transfersOutAmount") ?? 0);
       const formatted = new Intl.NumberFormat("en-US", {

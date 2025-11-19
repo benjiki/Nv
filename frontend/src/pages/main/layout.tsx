@@ -1,7 +1,10 @@
-import { Outlet } from "react-router";
+import { Outlet, useLocation } from "react-router-dom";
 import Navigation from "@/components/Navigation";
-
+import Breadcrumb from "@/components/Breadcrumb";
 export default function Layout() {
+  const { pathname } = useLocation();
+  const hiddenRoutes = ["/"];
+  const hideBreadcrumb = hiddenRoutes.includes(pathname);
   return (
     <main className="flex-1  p-4">
       {/* Sticky navigation bar */}
@@ -10,6 +13,7 @@ export default function Layout() {
           <Navigation />
         </div>
       </div>
+      {!hideBreadcrumb && <Breadcrumb />}
       <Outlet />
     </main>
   );

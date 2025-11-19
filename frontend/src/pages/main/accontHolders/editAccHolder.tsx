@@ -1,12 +1,3 @@
-import { authService } from "@/utils/authService";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { AxiosError } from "axios";
-import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-import { z } from "zod";
-
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -18,38 +9,34 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { accountHolderService } from "@/utils/accountHolderService";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { AxiosError } from "axios";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import z from "zod";
 
-const loginSchema = z.object({
-  phoneNumber: z
-    .string()
-    .trim()
-    .min(10, { message: " Phone Number must be at least 10 digits " })
-    .max(10, { message: "10 is the max number" }),
-  password: z
-    .string()
-    .min(8, { message: "Password must be at least 8 characters" }),
+const accountHolderCreateSchema = z.object({
+  name: z.string(),
+  accountNumber: z.string().trim(),
 });
+type AccountHolderCreateFormData = z.infer<typeof accountHolderCreateSchema>;
 
-type LoginFormData = z.infer<typeof loginSchema>;
-
-const LoginForm: React.FC = () => {
-  const navigate = useNavigate();
-
-  const form = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+const EditAccHolder = () => {
+  const form = useForm<AccountHolderCreateFormData>({
+    resolver: zodResolver(accountHolderCreateSchema),
   });
-
   const queryClient = useQueryClient();
   const mutation = useMutation({
-    mutationFn: authService.login,
+    mutationFn: accountHolderService.createAccounHolder,
     onSuccess: (data) => {
       if (data.error) {
         toast.error(data.error);
         return;
       }
-      queryClient.refetchQueries({ queryKey: ["auth"] });
-      toast.success(data.message || "Login Success");
-      navigate("/");
+      queryClient.refetchQueries({ queryKey: ["accountHolders"] });
+      toast.success(data.message || "Account Created ");
     },
 
     onError: (error) => {
@@ -65,68 +52,72 @@ const LoginForm: React.FC = () => {
         axiosError.response?.data?.message || // For Joi or custom message
         axiosError.response?.data?.errors?.join(", ") || // For validation arrays
         axiosError.response?.data?.error || // For your backend "error" field
-        "Login failed"; // fallback
+        "Account Creation failed"; // fallback
 
       toast.error(msg);
     },
   });
 
-  const onSubmit = (data: LoginFormData) => {
+  const onSubmit = (data: AccountHolderCreateFormData) => {
     mutation.mutate(data);
   };
   return (
-    <div className="relative w-full h-screen overflow-hidden">
-      {/* 🔹 Foreground (form) */}
-      <div className="relative z-10 flex items-center justify-center h-full">
-        <div className="backdrop-blur-lg bg-white/20 p-10 rounded-xl shadow-lg">
+    <div className="w-full h-screen">
+      <div className="w-full flex justify-center mt-20">
+        <div className="w-full lg:w-1/3  ">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="flex flex-col gap-4"
+            >
               <FormField
                 control={form.control}
-                name="phoneNumber"
+                name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-foreground">
-                      Phone Number 🤙
-                    </FormLabel>
+                    <FormLabel className="text-foreground">Name</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Enter phone number"
+                        placeholder="account holders name"
                         {...field}
                         autoComplete="off"
                         autoCorrect="false"
-                        className="border-0 border-b-2 border-muted-foreground rounded-none focus-visible:ring-0 focus:border-primary"
+                        className=""
                       />
                     </FormControl>
-                    <FormDescription className="text-secondary-foreground">
-                      We'll use your phone number to verify your account.
+                    <FormDescription>
+                      Account Holder name is required
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
+              {/* account Number */}
               <FormField
                 control={form.control}
-                name="password"
+                name="accountNumber"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-foreground">
-                      Password 🔑
+                      Account Number
                     </FormLabel>
                     <FormControl>
                       <Input
-                        type="password"
-                        placeholder="Enter password"
+                        placeholder="account holders accNumber"
                         {...field}
-                        className="border-0 border-b-2 border-muted-foreground rounded-none focus-visible:ring-0 focus:border-primary"
+                        autoComplete="off"
+                        autoCorrect="false"
+                        className=""
                       />
                     </FormControl>
+                    <FormDescription>
+                      Account Holder Acc Number is required
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
               <Button type="submit" disabled={mutation.isPending}>
                 {mutation.isPending ? "Submitting..." : "Submit"}
               </Button>
@@ -137,4 +128,5 @@ const LoginForm: React.FC = () => {
     </div>
   );
 };
-export default LoginForm;
+
+export default EditAccHolder;

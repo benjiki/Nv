@@ -7,10 +7,10 @@ import {
   NavigationMenuTrigger,
   NavigationMenuViewport,
 } from "@/components/ui/navigation-menu";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { Home } from "lucide-react";
 
 const Navigation = () => {
@@ -58,11 +58,11 @@ const Navigation = () => {
               <li>
                 <NavigationMenuLink asChild>
                   <Link
-                    to="/holders/add"
+                    to="/accountholders/create"
                     className="block select-none rounded-md p-3 leading-tight no-underline outline-hidden transition-colors hover:bg-accent hover:text-accent-foreground focus:shadow-md"
                   >
                     <div className="text-sm font-medium leading-none">
-                      Add New Holder
+                      Create New Account Holder
                     </div>
                     <p className="text-muted-foreground text-sm leading-snug line-clamp-2">
                       Create a new account holder record.

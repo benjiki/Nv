@@ -20,4 +20,9 @@ export const accountHolderService = {
         const response = await api.get<ApiResponse<AccountHolderStats>>("/account/stats")
         return response.data.data;
     }
+    ,
+    createAccounHolder: async (data: { name: string, accountNumber: string }) => {
+        const res = await api.post("/account/create", data);
+        return res.data
+    }
 };

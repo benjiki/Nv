@@ -2,7 +2,9 @@ import { columns } from "@/components/accountHolders/columns";
 import { DataTable } from "@/components/accountHolders/data-table";
 import { DataTablePagination } from "@/components/DataTablePagination";
 import Loader from "@/components/Loader";
+
 import StatCard from "@/components/StatCard";
+import { Input } from "@/components/ui/input";
 import {
   useAccountHolders,
   useAccountHolderStats,
@@ -51,20 +53,19 @@ const AccountHolders = () => {
         ]}
       />
 
-      <div className="mb-4 flex gap-2">
-        <input
+      <div className="my-4 flex gap-4 w-fit">
+        <Input
           type="text"
           placeholder="Filter by name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="border px-2 py-1"
+          className="border-2"
         />
-        <input
+        <Input
           type="text"
           placeholder="Filter by account number"
           value={accountNumber}
           onChange={(e) => setAccountNumber(e.target.value)}
-          className="border px-2 py-1"
         />
       </div>
       <DataTable columns={columns} data={data.data} />
