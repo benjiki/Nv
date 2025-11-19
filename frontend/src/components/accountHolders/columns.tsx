@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useNavigate } from "react-router-dom";
 
 export const columns: ColumnDef<AccountHolder>[] = [
   {
@@ -128,7 +129,7 @@ export const columns: ColumnDef<AccountHolder>[] = [
     id: "actions",
     cell: ({ row }) => {
       const account = row.original;
-
+      const navigate = useNavigate();
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -147,7 +148,13 @@ export const columns: ColumnDef<AccountHolder>[] = [
               Copy Account No
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Edit</DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                navigate(`/accountholders/edit/${account.id}`);
+              }}
+            >
+              Edit
+            </DropdownMenuItem>
             <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

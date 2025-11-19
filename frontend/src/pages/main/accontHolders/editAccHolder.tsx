@@ -12,62 +12,68 @@ import { Input } from "@/components/ui/input";
 import { accountHolderService } from "@/utils/accountHolderService";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { AxiosError } from "axios";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAccountHolder } from "@/hooks/useAccountHolder";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
+import { useEffect } from "react";
 
-const accountHolderCreateSchema = z.object({
+const schema = z.object({
   name: z.string(),
   accountNumber: z.string().trim(),
 });
-type AccountHolderCreateFormData = z.infer<typeof accountHolderCreateSchema>;
+
+type FormData = z.infer<typeof schema>;
 
 const EditAccHolder = () => {
-  const form = useForm<AccountHolderCreateFormData>({
-    resolver: zodResolver(accountHolderCreateSchema),
+  const { id } = useParams();
+  const accountId = Number(id);
+
+  const { data, isLoading } = useAccountHolder(accountId);
+  console.log("FORM RESET DATA:", data);
+
+  const form = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      name: "",
+      accountNumber: "",
+    },
   });
+
+  useEffect(() => {
+    if (data) {
+      form.reset({
+        name: data.name,
+        accountNumber: data.accountNumber,
+      });
+    }
+  }, [data, form]);
+
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
   const mutation = useMutation({
-    mutationFn: accountHolderService.createAccounHolder,
-    onSuccess: (data) => {
-      if (data.error) {
-        toast.error(data.error);
-        return;
-      }
-      queryClient.refetchQueries({ queryKey: ["accountHolders"] });
-      toast.success(data.message || "Account Created ");
-    },
+    mutationFn: (values: FormData) =>
+      accountHolderService.updateAccountHolder(accountId, values),
 
-    onError: (error) => {
-      const axiosError = error as AxiosError<{
-        message?: string;
-        errors?: string[];
-        error?: string;
-      }>;
+    onSuccess: (res) => {
+      toast.success(res.message || "Account updated");
 
-      console.log("❌ Backend error:", axiosError.response?.data);
-      // Pick the most useful message
-      const msg =
-        axiosError.response?.data?.message || // For Joi or custom message
-        axiosError.response?.data?.errors?.join(", ") || // For validation arrays
-        axiosError.response?.data?.error || // For your backend "error" field
-        "Account Creation failed"; // fallback
-
-      toast.error(msg);
+      queryClient.invalidateQueries({ queryKey: ["accountHolders"] });
+      navigate("/accountholders");
     },
   });
 
-  const onSubmit = (data: AccountHolderCreateFormData) => {
-    mutation.mutate(data);
-  };
+  if (isLoading) return <div>Loading...</div>;
+
   return (
     <div className="w-full h-screen">
       <div className="w-full flex justify-center mt-20">
-        <div className="w-full lg:w-1/3  ">
+        <div className="w-full lg:w-1/3">
           <Form {...form}>
             <form
-              onSubmit={form.handleSubmit(onSubmit)}
+              onSubmit={form.handleSubmit((v) => mutation.mutate(v))}
               className="flex flex-col gap-4"
             >
               <FormField
@@ -118,8 +124,9 @@ const EditAccHolder = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending ? "Submitting..." : "Submit"}
+
+              <Button type="submit">
+                {mutation.isPending ? "Updating…" : "Update"}
               </Button>
             </form>
           </Form>

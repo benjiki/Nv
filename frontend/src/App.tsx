@@ -10,6 +10,7 @@ import AccountHolders from "./pages/main/accontHolders/accountHolders";
 import Layout from "./pages/main/layout";
 import PageWrapper from "./components/PageWrapper";
 import CreateAccHolder from "./pages/main/accontHolders/createAccHolder";
+import EditAccHolder from "./pages/main/accontHolders/editAccHolder";
 
 function App() {
   const location = useLocation();
@@ -38,10 +39,18 @@ function App() {
                 }
               />
               <Route
-                path="/accountholders/Create"
+                path="/accountholders/create"
                 element={
                   <PageWrapper>
                     <CreateAccHolder />
+                  </PageWrapper>
+                }
+              />
+              <Route
+                path="/accountholders/edit/:id"
+                element={
+                  <PageWrapper>
+                    <EditAccHolder />
                   </PageWrapper>
                 }
               />

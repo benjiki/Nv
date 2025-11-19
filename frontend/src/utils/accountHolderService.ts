@@ -1,5 +1,5 @@
 import api from "./api";
-import type { AccountHolderFilter, AccountHolderResponse, AccountHolderStats, ApiResponse } from "../../types";
+import type { AccountHolder, AccountHolderFilter, AccountHolderResponse, AccountHolderStats, ApiResponse } from "../../types";
 
 export const accountHolderService = {
     getAllAccountHolders: async (filters?: AccountHolderFilter): Promise<AccountHolderResponse> => {
@@ -19,10 +19,20 @@ export const accountHolderService = {
     getAccountHolderStats: async () => {
         const response = await api.get<ApiResponse<AccountHolderStats>>("/account/stats")
         return response.data.data;
-    }
-    ,
+    },
+
+    getAccountHolderById: async (id: number): Promise<AccountHolder> => {
+        const response = await api.get<ApiResponse<AccountHolder>>(`/account/${id}`);
+        return response.data.data; // this is the single account holder object
+    },
+
     createAccounHolder: async (data: { name: string, accountNumber: string }) => {
         const res = await api.post("/account/create", data);
         return res.data
+    },
+    updateAccountHolder: async (id: number, data: { name: string; accountNumber: string }) => {
+        const res = await api.put(`/account/update/${id}`, data);
+        return res.data; // { status, message, error }
     }
+
 };

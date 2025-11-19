@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { accountHolderService } from "../utils/accountHolderService";
 import { useEffect } from "react";
 import { socket } from "@/utils/socket";
-import type { AccountHolderFilter, AccountHolderStats } from "types";
+import type { AccountHolder, AccountHolderFilter, AccountHolderStats } from "types";
 
 
 export const useAccountHolders = (filters?: AccountHolderFilter) => {
@@ -45,5 +45,12 @@ export const useAccountHolderStats = () => {
         queryKey: ["accountHoldersStats"],
         queryFn: accountHolderService.getAccountHolderStats,
     });
-
 }
+
+
+export const useAccountHolder = (id?: number) =>
+    useQuery<AccountHolder>({
+        queryKey: ["accountHolder", id],
+        queryFn: () => accountHolderService.getAccountHolderById(id!),
+        enabled: !!id,
+    });
