@@ -213,3 +213,22 @@ export const getAllAccountHoldersService = async (data: {
         total
     }
 };
+
+
+export const AccountHoldersCountService = async () => {
+    const countAccountHoldersWithDebts = await prisma.accountholder.count({
+        where: {
+            loansTaken: {
+                some: {
+                    status: "PENDING"
+                }
+            }
+        }
+    })
+    const countAllAccountHoders = await prisma.accountholder.count();
+
+    return {
+        countAccountHoldersWithDebts,
+        countAllAccountHoders
+    }
+}

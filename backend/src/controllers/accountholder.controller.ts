@@ -79,3 +79,8 @@ export const getAccountHolderController = async (req: Request, res: Response) =>
     res.status(200).json(new ApiSuccess(accountHolder))
 }
 
+export const getAccountHoldersCountController = async (req: Request, res: Response) => {
+    const accountHoldersStat = await AccountService.AccountHoldersCountService()
+
+    res.status(200).json(new ApiSuccess(accountHoldersStat))
+}

@@ -5,6 +5,7 @@ const router = express.Router()
 
 router.post("/create", AccountHolder.accountholderCreate)
 router.put("/update/:id", AccountHolder.accountholderUpdate)
+router.get("/stats", AccountHolder.getAccountHoldersCountController)
 router.get("/:id", AccountHolder.getAccountHolderController)
 router.get("/", AccountHolder.getAllAccountHoldersController)
 
