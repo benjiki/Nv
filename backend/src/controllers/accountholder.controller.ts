@@ -84,3 +84,23 @@ export const getAccountHoldersCountController = async (req: Request, res: Respon
 
     res.status(200).json(new ApiSuccess(accountHoldersStat))
 }
+
+export const deleteAccountHolderController = async (req: Request, res: Response) => {
+    const { error: paramError, value: paramValue } = accountHolderParamSchema.validate(req.params);
+
+    if (paramError) {
+        const messages = [
+            ...(paramError?.details.map((err) => err.message) || [])
+        ];
+        return res.status(400).json({
+            error: messages.join(", "),
+        });
+    }
+    const deleteAccountHolder = await AccountService.accountHolderDeleteService({ id: paramValue.id })
+
+    res.status(200).json(new ApiSuccess(
+        deleteAccountHolder === "soft-deleted"
+            ? "Account soft deleted (has related records)"
+            : "Account hard deleted (no related records)"
+    ));
+}

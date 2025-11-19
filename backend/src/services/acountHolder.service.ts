@@ -31,7 +31,7 @@ export const accountHolderUpdateService = async (data: {
 
 }) => {
     const checkAccount = await prisma.accountholder.count({
-        where: { id: Number(data.id) }
+        where: { id: Number(data.id), deletedAt: null }
     })
 
     if (checkAccount <= 0) {
@@ -65,7 +65,7 @@ export const accountHolderUpdateService = async (data: {
 export const getAccountHolderService = async (data: { id: number }) => {
     // 🔹 Fetch the account holder
     const accountHolder = await prisma.accountholder.findUnique({
-        where: { id: Number(data.id) },
+        where: { id: Number(data.id), deletedAt: null },
         include: {
             deposits: true,
             loansTaken: { include: { repayments: true } },
@@ -141,19 +141,15 @@ export const getAllAccountHoldersService = async (data: {
     const page = data.page ?? 1;  // default to page 1
     const limit = data.limit ?? 10; // default to 10 items per page
 
-    const filters = {
-        AND: [
-            data.name
-                ? { name: { contains: data.name } }
-                : {},
-            data.accountNumber
-                ? { accountNumber: { contains: data.accountNumber } }
-                : {},
-        ],
-    };
+    const filters: any = { deletedAt: null };
+
+    if (data.name) filters.name = { contains: data.name };
+    if (data.accountNumber) filters.accountNumber = { contains: data.accountNumber };
+
     const total = await prisma.accountholder.count({
         where: filters,
     });
+
 
     const accountHolders = await prisma.accountholder.findMany({
         skip: (page - 1) * limit,
@@ -218,6 +214,7 @@ export const getAllAccountHoldersService = async (data: {
 export const AccountHoldersCountService = async () => {
     const countAccountHoldersWithDebts = await prisma.accountholder.count({
         where: {
+            deletedAt: null,
             loansTaken: {
                 some: {
                     status: "PENDING"
@@ -225,10 +222,58 @@ export const AccountHoldersCountService = async () => {
             }
         }
     })
-    const countAllAccountHoders = await prisma.accountholder.count();
+    const countAllAccountHoders = await prisma.accountholder.count(
+        {
+            where: {
+                deletedAt: null
+            }
+        }
+    );
 
     return {
         countAccountHoldersWithDebts,
         countAllAccountHoders
     }
+}
+
+export const accountHolderDeleteService = async (data: { id: number }) => {
+    const account = await prisma.accountholder.findUnique({
+        where: { id: data.id, deletedAt: null },
+        include: {
+            deposits: true,
+            loansGiven: true,
+            loansTaken: true,
+            transfersOut: true,
+            transfersIn: true,
+            repayments: true,
+        },
+    });
+
+    if (!account) {
+        throw new ApiError(400, `Account with ID ${data.id} does not exist.`);
+    }
+
+    // Check if any relation array has items
+    const hasRelations = [
+        account.deposits,
+        account.loansGiven,
+        account.loansTaken,
+        account.transfersOut,
+        account.transfersIn,
+        account.repayments,
+    ].some(relation => relation.length > 0);
+
+    if (hasRelations) {
+        await prisma.accountholder.update({
+            where: { id: data.id },
+            data: { deletedAt: new Date() },
+        });
+        return "soft-deleted";
+    } else {
+        await prisma.accountholder.delete({
+            where: { id: data.id },
+        });
+        return "hard-deleted";
+    }
+
 }

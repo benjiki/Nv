@@ -34,6 +34,7 @@ model Accountholder {
   name          String
   balance       Decimal     @default(0.0)
   accountNumber String      @default("10000")
+  deletedAt     DateTime? // Field for soft delete
   deposits      Deposit[]
   loansGiven    Loan[]      @relation("LoansGiven")
   loansTaken    Loan[]      @relation("LoansTaken")
