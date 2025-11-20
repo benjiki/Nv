@@ -235,14 +235,19 @@ export const createRepaymentService = async (data: {
     return repayment;
 };
 
-export const getTransactionDataService = async () => {
+export const getTransactionDataService = async (data: {
+    sender?: string,
+    receiver?: string,
+    amount?: number,
+    type?: "TRANSFER" | "REPAYMENT" | "LOAN" | "DEPOSIT",
+    status?: "REPAID" | "PENDING",
+    page?: number,
+    limit?: number
+}) => {
+    // Fetch all data from DB
     const deposits = await prisma.deposit.findMany({
-        where: {
-            user: { deletedAt: null }
-        },
-        include: {
-            user: true
-        },
+        where: { user: { deletedAt: null } },
+        include: { user: true },
     });
 
     const transfers = await prisma.transfer.findMany({
@@ -250,10 +255,7 @@ export const getTransactionDataService = async () => {
             sender: { deletedAt: null },
             receiver: { deletedAt: null }
         },
-        include: {
-            sender: true,
-            receiver: true,
-        }
+        include: { sender: true, receiver: true },
     });
 
     const loans = await prisma.loan.findMany({
@@ -261,27 +263,21 @@ export const getTransactionDataService = async () => {
             lender: { deletedAt: null },
             borrower: { deletedAt: null }
         },
-        include: {
-            lender: true,
-            borrower: true,
-        }
+        include: { lender: true, borrower: true },
     });
 
     const repayments = await prisma.repayment.findMany({
-        where: {
-            payer: { deletedAt: null }
-        },
+        where: { payer: { deletedAt: null } },
         include: {
-            loan: true,
-            payer: true
-        }
-    })
+            payer: true,
+            loan: { include: { lender: true } }
+        },
+    });
 
-    // normalizing all data to one sturcture
-
+    // Normalize data
     const formattedDeposits = deposits.map(d => ({
         id: d.id,
-        type: "DEPOSIT",
+        type: "DEPOSIT" as const,
         amount: d.amount,
         sender: null,
         receiver: d.user.name,
@@ -292,7 +288,7 @@ export const getTransactionDataService = async () => {
 
     const formattedTransfers = transfers.map(t => ({
         id: t.id,
-        type: "TRANSFER",
+        type: "TRANSFER" as const,
         amount: t.amount,
         sender: t.sender.name,
         receiver: t.receiver.name,
@@ -303,10 +299,10 @@ export const getTransactionDataService = async () => {
 
     const formattedLoans = loans.map(l => ({
         id: l.id,
-        type: "LOAN",
+        type: "LOAN" as const,
         amount: l.amount,
-        sender: l.lender.name,     // lender gives money
-        receiver: l.borrower.name, // borrower receives money
+        sender: l.lender.name,
+        receiver: l.borrower.name,
         interestRate: l.interestRate,
         status: l.status,
         createdAt: l.createdAt,
@@ -314,29 +310,70 @@ export const getTransactionDataService = async () => {
 
     const formattedRepayments = repayments.map(r => ({
         id: r.id,
-        type: "REPAYMENT",
+        type: "REPAYMENT" as const,
         amount: r.amount,
         sender: r.payer.name,
-        receiver: r.loan.lenderId, // optionally join lender if needed
+        receiver: r.loan.lender.name,
         interestRate: null,
         status: r.loan.status,
         createdAt: r.createdAt,
     }));
 
-
-    // merging all transactions
-    const allTransactions = [
+    let allTransactions = [
         ...formattedDeposits,
         ...formattedTransfers,
         ...formattedLoans,
         ...formattedRepayments,
-    ]
+    ];
 
-    //sort data by date the most recent will be first
+    // **Apply filters**
+    // Apply filters with partial and case-insensitive matching
+    if (data.receiver) {
+        const receiverFilter = data.receiver.toString().toLowerCase();
+        allTransactions = allTransactions.filter(tx =>
+            tx.receiver?.toString().toLowerCase().includes(receiverFilter)
+        );
+    }
+
+    if (data.sender) {
+        const senderFilter = data.sender.toString().toLowerCase();
+        allTransactions = allTransactions.filter(tx =>
+            tx.sender?.toString().toLowerCase().includes(senderFilter)
+        );
+    }
+
+
+    if (data.amount !== undefined) {
+        allTransactions = allTransactions.filter(tx => Number(tx.amount) === data.amount);
+    }
+
+    if (data.type) {
+        allTransactions = allTransactions.filter(tx => tx.type === data.type);
+    }
+
+    if (data.status) {
+        const statusFilter = data.status.toLowerCase();
+        allTransactions = allTransactions.filter(tx =>
+            tx.status?.toLowerCase() === statusFilter
+        );
+    }
+
+
+    // Sort by most recent
     allTransactions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
-    return allTransactions
-}
+    // Apply pagination
+    const page = data.page ?? 1;
+    const limit = data.limit ?? 10;
+    const start = (page - 1) * limit;
+    const paginatedTransactions = allTransactions.slice(start, start + limit);
+
+    return {
+        data: paginatedTransactions,
+        total: allTransactions.length
+    };
+};
+
 
 export const getTransactionByIdDataService = async (data: { id: number }) => {
 

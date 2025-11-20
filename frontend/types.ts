@@ -35,3 +35,29 @@ export interface AccountHolderResponse {
     total: number;
 }
 
+export type TransactionType = "TRANSFER" | "REPAYMENT" | "LOAN" | "DEPOSIT" | "NOT_SET";
+export type Status = "REPAID" | "PENDING" | "NOT_SET"
+export interface AccountManagment {
+    id: number;
+    type: TransactionType;
+    amount: string;
+    sender: string | null;
+    receiver: string;
+    interestRate: number | null;
+    status: Status;
+    createdAt: string;
+}
+export interface AccountManagementResponse {
+    data: AccountManagment[];
+    total: number;
+}
+
+export interface AccountManagementFilter {
+    sender?: string;
+    receiver?: string;
+    status?: Status;
+    type?: TransactionType
+    amount?: string;
+    page?: number;
+    limit?: number;
+}
