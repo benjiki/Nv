@@ -53,3 +53,9 @@ export const createRepaymentController = async (req: Request, res: Response) => 
     const accountHolder = await AccountManagment.createRepaymentService(value)
     res.status(201).json(new ApiSuccess(accountHolder, "Repayment successfull"));
 }
+
+export const getTransactionDataController = async (req: Request, res: Response) => {
+    const transactions = await AccountManagment.getTransactionDataService();
+
+    res.status(200).json(new ApiSuccess(transactions, "All transactions"))
+}

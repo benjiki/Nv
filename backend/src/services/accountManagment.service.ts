@@ -1,4 +1,4 @@
-import { Decimal } from "@prisma/client/runtime/library";
+import { Decimal } from "decimal.js";
 import { prisma, LoanStatus } from "../prismaClient.js"
 import { ApiError } from "../utils/ApiError.js";
 
@@ -234,3 +234,106 @@ export const createRepaymentService = async (data: {
 
     return repayment;
 };
+
+export const getTransactionDataService = async () => {
+    const deposits = await prisma.deposit.findMany({
+        where: {
+            user: { deletedAt: null }
+        },
+        include: {
+            user: true
+        },
+    });
+
+    const transfers = await prisma.transfer.findMany({
+        where: {
+            sender: { deletedAt: null },
+            receiver: { deletedAt: null }
+        },
+        include: {
+            sender: true,
+            receiver: true,
+        }
+    });
+
+    const loans = await prisma.loan.findMany({
+        where: {
+            lender: { deletedAt: null },
+            borrower: { deletedAt: null }
+        },
+        include: {
+            lender: true,
+            borrower: true,
+        }
+    });
+
+    const repayments = await prisma.repayment.findMany({
+        where: {
+            payer: { deletedAt: null }
+        },
+        include: {
+            loan: true,
+            payer: true
+        }
+    })
+
+    // normalizing all data to one sturcture
+
+    const formattedDeposits = deposits.map(d => ({
+        id: d.id,
+        type: "DEPOSIT",
+        amount: d.amount,
+        sender: null,
+        receiver: d.user.name,
+        interestRate: null,
+        status: null,
+        createdAt: d.createdAt,
+    }));
+
+    const formattedTransfers = transfers.map(t => ({
+        id: t.id,
+        type: "TRANSFER",
+        amount: t.amount,
+        sender: t.sender.name,
+        receiver: t.receiver.name,
+        interestRate: null,
+        status: null,
+        createdAt: t.createdAt,
+    }));
+
+    const formattedLoans = loans.map(l => ({
+        id: l.id,
+        type: "LOAN",
+        amount: l.amount,
+        sender: l.lender.name,     // lender gives money
+        receiver: l.borrower.name, // borrower receives money
+        interestRate: l.interestRate,
+        status: l.status,
+        createdAt: l.createdAt,
+    }));
+
+    const formattedRepayments = repayments.map(r => ({
+        id: r.id,
+        type: "REPAYMENT",
+        amount: r.amount,
+        sender: r.payer.name,
+        receiver: r.loan.lenderId, // optionally join lender if needed
+        interestRate: null,
+        status: r.loan.status,
+        createdAt: r.createdAt,
+    }));
+
+
+    // merging all transactions
+    const allTransactions = [
+        ...formattedDeposits,
+        ...formattedTransfers,
+        ...formattedLoans,
+        ...formattedRepayments,
+    ]
+
+    //sort data by date the most recent will be first
+    allTransactions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+    return allTransactions
+}
