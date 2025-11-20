@@ -11,6 +11,11 @@ import Layout from "./pages/main/layout";
 import PageWrapper from "./components/PageWrapper";
 import CreateAccHolder from "./pages/main/accontHolders/createAccHolder";
 import EditAccHolder from "./pages/main/accontHolders/editAccHolder";
+import AccountMangement from "./pages/main/accountManagement/accountMangement";
+import Deposit from "./pages/main/accountManagement/deposit";
+import Transfer from "./pages/main/accountManagement/transfer";
+import Loan from "./pages/main/accountManagement/loan";
+import Repayment from "./pages/main/accountManagement/repayment";
 
 function App() {
   const location = useLocation();
@@ -51,6 +56,46 @@ function App() {
                 element={
                   <PageWrapper>
                     <EditAccHolder />
+                  </PageWrapper>
+                }
+              />
+              <Route
+                path="/accountmanagment"
+                element={
+                  <PageWrapper>
+                    <AccountMangement />
+                  </PageWrapper>
+                }
+              />
+              <Route
+                path="/accountmanagment/deposit"
+                element={
+                  <PageWrapper>
+                    <Deposit />
+                  </PageWrapper>
+                }
+              />
+              <Route
+                path="/accountmanagment/transfer"
+                element={
+                  <PageWrapper>
+                    <Transfer />
+                  </PageWrapper>
+                }
+              />
+              <Route
+                path="/accountmanagment/loan"
+                element={
+                  <PageWrapper>
+                    <Loan />
+                  </PageWrapper>
+                }
+              />
+              <Route
+                path="/accountmanagment/repayment"
+                element={
+                  <PageWrapper>
+                    <Repayment />
                   </PageWrapper>
                 }
               />

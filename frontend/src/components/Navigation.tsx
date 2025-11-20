@@ -82,7 +82,7 @@ const Navigation = () => {
               <li className="row-span-4">
                 <NavigationMenuLink asChild>
                   <Link
-                    to="/"
+                    to="/accountmanagment"
                     className="from-muted/50 to-muted flex h-full w-full flex-col justify-end rounded-md bg-linear-to-b p-6 no-underline outline-hidden transition-all duration-200 select-none focus:shadow-md"
                   >
                     <div className="mb-2 text-lg font-medium">
@@ -99,11 +99,11 @@ const Navigation = () => {
               <li>
                 <NavigationMenuLink asChild>
                   <Link
-                    to="/deposite"
+                    to="/accountmanagment/deposit"
                     className="block select-none rounded-md p-3 leading-tight no-underline outline-hidden transition-colors hover:bg-accent hover:text-accent-foreground focus:shadow-md"
                   >
                     <div className="text-sm font-medium leading-none">
-                      Deposite
+                      Deposit
                     </div>
                     <p className="text-muted-foreground text-sm leading-snug line-clamp-2">
                       Add fund to your account
@@ -115,7 +115,7 @@ const Navigation = () => {
               <li>
                 <NavigationMenuLink asChild>
                   <Link
-                    to="/transfer"
+                    to="/accountmanagment/transfer"
                     className="block select-none rounded-md p-3 leading-tight no-underline outline-hidden transition-colors hover:bg-accent hover:text-accent-foreground focus:shadow-md"
                   >
                     <div className="text-sm font-medium leading-none">
@@ -131,7 +131,7 @@ const Navigation = () => {
               <li>
                 <NavigationMenuLink asChild>
                   <Link
-                    to="/loan"
+                    to="/accountmanagment/loan"
                     className="block select-none rounded-md p-3 leading-tight no-underline outline-hidden transition-colors hover:bg-accent hover:text-accent-foreground focus:shadow-md"
                   >
                     <div className="text-sm font-medium leading-none">Loan</div>
@@ -144,7 +144,7 @@ const Navigation = () => {
               <li>
                 <NavigationMenuLink asChild>
                   <Link
-                    to="/repayment"
+                    to="/accountmanagment/repayment"
                     className="block select-none rounded-md p-3 leading-tight no-underline outline-hidden transition-colors hover:bg-accent hover:text-accent-foreground focus:shadow-md"
                   >
                     <div className="text-sm font-medium leading-none">
