@@ -77,3 +77,11 @@ export const accountManagmentParamSchema = Joi.object({
     }),
 }).unknown(false);
 
+
+
+export const accountManagmentQueryFiltterSchema = Joi.object({
+    name: Joi.string(),
+    accountNumber: Joi.string(),
+    page: Joi.number(),
+    limit: Joi.number()
+}).unknown(false);

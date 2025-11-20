@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 import { ApiError, ApiSuccess } from "../utils/ApiError.js";
 import * as AccountManagment from "../services/accountManagment.service.js"
-import { depositAccountManagmentSchema, loanAccountManagmentSchema, repaymentAccountManagmentSchema, transferAccountManagmentSchema } from "../validations/accountMangement.validation.js";
+import * as AccountManagmentValidation from "../validations/accountMangement.validation.js";
 
 
 export const createDepositController = async (req: Request, res: Response) => {
-    const { error, value } = depositAccountManagmentSchema.validate(req.body, {
+    const { error, value } = AccountManagmentValidation.depositAccountManagmentSchema.validate(req.body, {
         abortEarly: false
     })
     if (error) {
@@ -17,7 +17,7 @@ export const createDepositController = async (req: Request, res: Response) => {
 }
 
 export const createLoanController = async (req: Request, res: Response) => {
-    const { error, value } = loanAccountManagmentSchema.validate(req.body, {
+    const { error, value } = AccountManagmentValidation.loanAccountManagmentSchema.validate(req.body, {
         abortEarly: false
     })
     if (error) {
@@ -30,7 +30,7 @@ export const createLoanController = async (req: Request, res: Response) => {
 
 
 export const createTransferController = async (req: Request, res: Response) => {
-    const { error, value } = transferAccountManagmentSchema.validate(req.body, {
+    const { error, value } = AccountManagmentValidation.transferAccountManagmentSchema.validate(req.body, {
         abortEarly: false
     })
     if (error) {
@@ -43,7 +43,7 @@ export const createTransferController = async (req: Request, res: Response) => {
 
 
 export const createRepaymentController = async (req: Request, res: Response) => {
-    const { error, value } = repaymentAccountManagmentSchema.validate(req.body, {
+    const { error, value } = AccountManagmentValidation.repaymentAccountManagmentSchema.validate(req.body, {
         abortEarly: false
     })
     if (error) {
@@ -58,4 +58,20 @@ export const getTransactionDataController = async (req: Request, res: Response) 
     const transactions = await AccountManagment.getTransactionDataService();
 
     res.status(200).json(new ApiSuccess(transactions, "All transactions"))
+}
+
+export const getTransactionByIdDataController = async (req: Request, res: Response) => {
+    const { error: paramError, value: paramValue } = AccountManagmentValidation.accountManagmentParamSchema.validate(req.params)
+
+    if (paramError) {
+        const messages = [
+            ...(paramError?.details.map((err) => err.message) || [])
+        ];
+        return res.status(400).json({
+            error: messages.join(", "),
+        });
+    }
+    const transactions = await AccountManagment.getTransactionByIdDataService({ id: paramValue.id })
+    res.status(200).json(new ApiSuccess(transactions, "All transactions"))
+
 }
