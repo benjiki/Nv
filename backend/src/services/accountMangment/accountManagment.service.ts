@@ -47,7 +47,7 @@ export const getTransactionDataService = async (data: {
         sender: null,
         receiver: d.user.name,
         interestRate: null,
-        status: null,
+        status: d.status,
         createdAt: d.createdAt,
     }));
 
@@ -58,7 +58,7 @@ export const getTransactionDataService = async (data: {
         sender: t.sender.name,
         receiver: t.receiver.name,
         interestRate: null,
-        status: null,
+        status: t.status,
         createdAt: t.createdAt,
     }));
 
@@ -79,7 +79,7 @@ export const getTransactionDataService = async (data: {
         amount: r.amount,
         sender: r.payer.name,
         receiver: r.loan.lender.name,
-        interestRate: null,
+        interestRate: r.status,
         status: r.loan.status,
         createdAt: r.createdAt,
     }));
@@ -196,7 +196,7 @@ export const getTransactionByIdDataService = async (data: { id: number }) => {
         sender: null,
         receiver: d.user.name,
         interestRate: null,
-        status: null,
+        status: d.status,
         createdAt: d.createdAt,
     }));
 
@@ -207,7 +207,7 @@ export const getTransactionByIdDataService = async (data: { id: number }) => {
         sender: t.sender.name,
         receiver: t.receiver.name,
         interestRate: null,
-        status: null,
+        status: t.status,
         createdAt: t.createdAt,
     }));
 
@@ -215,8 +215,8 @@ export const getTransactionByIdDataService = async (data: { id: number }) => {
         id: l.id,
         type: "LOAN",
         amount: l.amount,
-        sender: l.lender.name,     // lender gives money
-        receiver: l.borrower.name, // borrower receives money
+        sender: l.lender.name,
+        receiver: l.borrower.name,
         interestRate: l.interestRate,
         status: l.status,
         createdAt: l.createdAt,
@@ -227,8 +227,8 @@ export const getTransactionByIdDataService = async (data: { id: number }) => {
         type: "REPAYMENT",
         amount: r.amount,
         sender: r.payer.name,
-        receiver: r.loan.lenderId, // optionally join lender if needed
-        interestRate: null,
+        receiver: r.loan.lenderId,
+        interestRate: r.status,
         status: r.loan.status,
         createdAt: r.createdAt,
     }));
