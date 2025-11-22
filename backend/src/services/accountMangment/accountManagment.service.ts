@@ -97,8 +97,8 @@ export const getTransactionDataService = async (data: {
             amount: r.amount,
             sender: r.payer.name,
             receiver: r.loan.lender.name,
-            interestRate: r.status,
-            status: r.loan.status,
+            interestRate: r.loan.interestRate,
+            status: r.status,
             createdAt: r.createdAt,
             remainingDebt: remainingDebt,
         };
@@ -263,8 +263,8 @@ export const getTransactionByIdDataService = async (data: { id: number }) => {
             amount: r.amount,
             sender: r.payer.name,
             receiver: r.loan.lender.name,
-            interestRate: r.status,
-            status: r.loan.status,
+            interestRate: r.loan.interestRate,
+            status: r.status,
             createdAt: r.createdAt,
             remainingDebt: remainingDebt,  // 👈 added
         };
