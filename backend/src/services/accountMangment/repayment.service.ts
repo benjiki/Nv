@@ -30,6 +30,9 @@ export const createRepaymentService = async (data: {
         throw new ApiError(400, "This loan is defaulted and cannot accept repayments");
     }
 
+    if (loan.status === LoanStatus.REVERSED) {
+        throw new ApiError(400, "This loan is reversed and cannot accept repayments");
+    }
     // ✅ Check if payer has enough balance
     if (payer.balance.lt(new Decimal(data.amount))) {
         throw new ApiError(400, "Insufficient funds");
@@ -57,22 +60,22 @@ export const createRepaymentService = async (data: {
     }
 
     // ✅ Check if user has taken another loan after this one
-    const newerLoan = await prisma.loan.findFirst({
-        where: {
-            borrowerId: data.payerId,
-            id: { not: loan.id },
-            createdAt: { gt: loan.createdAt },
-            status: { in: [LoanStatus.PENDING, LoanStatus.ACTIVE] },
-        },
-        orderBy: { createdAt: "desc" },
-    });
+    // const newerLoan = await prisma.loan.findFirst({
+    //     where: {
+    //         borrowerId: data.payerId,
+    //         id: { not: loan.id },
+    //         createdAt: { gt: loan.createdAt },
+    //         status: { in: [LoanStatus.PENDING, LoanStatus.ACTIVE] },
+    //     },
+    //     orderBy: { createdAt: "desc" },
+    // });
 
-    if (newerLoan) {
-        throw new ApiError(
-            400,
-            "You have already taken another active loan. Repay the current active loan instead."
-        );
-    }
+    // if (newerLoan) {
+    //     throw new ApiError(
+    //         400,
+    //         "You have already taken another active loan. Repay the current active loan instead."
+    //     );
+    // }
 
     // ✅ Proceed with repayment in transaction
     const repayment = await prisma.$transaction(async (tx) => {
@@ -111,4 +114,59 @@ export const createRepaymentService = async (data: {
     });
 
     return repayment;
+};
+
+export const reversalRepaymentService = async (data: { repaymentId: number }) => {
+    const original = await prisma.repayment.findUnique({
+        where: { id: data.repaymentId }
+    });
+
+    if (!original) throw new ApiError(404, "Repayment not found");
+    if (original.status === "REVERSED") throw new ApiError(400, "Repayment already reversed");
+
+    await prisma.$transaction(async (tx) => {
+        // Get related loan to find the lender
+        const loan = await tx.loan.findUnique({
+            where: { id: original.loanId },
+            select: {
+                lenderId: true
+            }
+        });
+
+        if (!loan) throw new ApiError(404, "Related loan not found");
+
+        const lenderId = loan.lenderId;
+        const payerId = original.payerId;
+
+        // 1. Check lender balance (must have enough to return the repayment)
+        const lender = await tx.accountholder.findUnique({
+            where: { id: lenderId },
+            select: { balance: true }
+        });
+
+        if (!lender) throw new ApiError(404, "Lender not found");
+
+        if (lender.balance.toNumber() < original.amount.toNumber()) {
+            throw new ApiError(400, "Lender has insufficient funds to reverse repayment");
+        }
+
+        // 2. Move the money back
+        await tx.accountholder.update({
+            where: { id: payerId },
+            data: { balance: { increment: original.amount } }
+        });
+
+        await tx.accountholder.update({
+            where: { id: lenderId },
+            data: { balance: { decrement: original.amount } }
+        });
+
+        // 3. Update repayment status
+        await tx.repayment.update({
+            where: { id: original.id },
+            data: { status: "REVERSED" }
+        });
+    });
+
+    // Return nothing
 };
