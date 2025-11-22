@@ -31,13 +31,22 @@ export const getTransactionDataService = async (data: {
         include: { lender: true, borrower: true },
     });
 
+
     const repayments = await prisma.repayment.findMany({
-        where: { payer: { deletedAt: null } },
+        where: {
+            payer: { deletedAt: null },
+        },
         include: {
             payer: true,
-            loan: { include: { lender: true } }
-        },
+            loan: {
+                include: {
+                    lender: true,       // 👈 include lender to get name
+                    repayments: true
+                }
+            }
+        }
     });
+
 
     // Normalize data
     const formattedDeposits = deposits.map(d => ({
@@ -49,6 +58,7 @@ export const getTransactionDataService = async (data: {
         interestRate: null,
         status: d.status,
         createdAt: d.createdAt,
+        remainingDebt: null
     }));
 
     const formattedTransfers = transfers.map(t => ({
@@ -60,6 +70,7 @@ export const getTransactionDataService = async (data: {
         interestRate: null,
         status: t.status,
         createdAt: t.createdAt,
+        remainingDebt: null
     }));
 
     const formattedLoans = loans.map(l => ({
@@ -71,18 +82,27 @@ export const getTransactionDataService = async (data: {
         interestRate: l.interestRate,
         status: l.status,
         createdAt: l.createdAt,
+        remainingDebt: null
     }));
 
-    const formattedRepayments = repayments.map(r => ({
-        id: r.id,
-        type: "REPAYMENT" as const,
-        amount: r.amount,
-        sender: r.payer.name,
-        receiver: r.loan.lender.name,
-        interestRate: r.status,
-        status: r.loan.status,
-        createdAt: r.createdAt,
-    }));
+    const formattedRepayments = repayments.map(r => {
+        const totalRepaid = r.loan.repayments
+            .reduce((sum, item) => sum + item.amount.toNumber(), 0);
+
+        const remainingDebt = r.loan.amount.toNumber() - totalRepaid;
+
+        return {
+            id: r.id,
+            type: "REPAYMENT",
+            amount: r.amount,
+            sender: r.payer.name,
+            receiver: r.loan.lender.name,
+            interestRate: r.status,
+            status: r.loan.status,
+            createdAt: r.createdAt,
+            remainingDebt: remainingDebt,
+        };
+    });
 
     let allTransactions = [
         ...formattedDeposits,
@@ -181,11 +201,17 @@ export const getTransactionByIdDataService = async (data: { id: number }) => {
     const repayments = await prisma.repayment.findMany({
         where: {
             payer: { deletedAt: null, id: data.id },
-        }, include: {
-            loan: true,
-            payer: true
+        },
+        include: {
+            payer: true,
+            loan: {
+                include: {
+                    lender: true,       // 👈 include lender to get name
+                    repayments: true
+                }
+            }
         }
-    })
+    });
 
     //   normalizing data for accountholder to one sturcture
 
@@ -198,6 +224,7 @@ export const getTransactionByIdDataService = async (data: { id: number }) => {
         interestRate: null,
         status: d.status,
         createdAt: d.createdAt,
+        remainingDebt: null
     }));
 
     const formattedTransfers = transfers.map(t => ({
@@ -209,6 +236,7 @@ export const getTransactionByIdDataService = async (data: { id: number }) => {
         interestRate: null,
         status: t.status,
         createdAt: t.createdAt,
+        remainingDebt: null
     }));
 
     const formattedLoans = loans.map(l => ({
@@ -220,18 +248,28 @@ export const getTransactionByIdDataService = async (data: { id: number }) => {
         interestRate: l.interestRate,
         status: l.status,
         createdAt: l.createdAt,
+        remainingDebt: null
     }));
 
-    const formattedRepayments = repayments.map(r => ({
-        id: r.id,
-        type: "REPAYMENT",
-        amount: r.amount,
-        sender: r.payer.name,
-        receiver: r.loan.lenderId,
-        interestRate: r.status,
-        status: r.loan.status,
-        createdAt: r.createdAt,
-    }));
+    const formattedRepayments = repayments.map(r => {
+        const totalRepaid = r.loan.repayments
+            .reduce((sum, item) => sum + item.amount.toNumber(), 0);
+
+        const remainingDebt = r.loan.amount.toNumber() - totalRepaid;
+
+        return {
+            id: r.id,
+            type: "REPAYMENT",
+            amount: r.amount,
+            sender: r.payer.name,
+            receiver: r.loan.lender.name,
+            interestRate: r.status,
+            status: r.loan.status,
+            createdAt: r.createdAt,
+            remainingDebt: remainingDebt,  // 👈 added
+        };
+    });
+
 
 
     // merging all transactions

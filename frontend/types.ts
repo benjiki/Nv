@@ -44,6 +44,7 @@ export interface AccountManagment {
     sender: string | null;
     receiver: string;
     interestRate: number | null;
+    remainingDebt: number | null;
     status: Status;
     createdAt: string;
 }

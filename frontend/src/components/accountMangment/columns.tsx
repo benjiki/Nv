@@ -70,9 +70,6 @@ const AccountActions = ({ accManage }: { accManage: AccountManagment }) => {
 };
 
 const currencyColumnsConfig = [
-  { key: "sender", label: "Sender", className: () => "" },
-  { key: "receiver", label: "Receiver", className: () => "" },
-
   {
     key: "interestRate",
     label: "Interest Rate",
@@ -89,6 +86,25 @@ const currencyColumnsConfig = [
     label: "Amount",
     className: (row: any) =>
       cn(row.type === "LOAN" ? "text-red-500" : "text-green-500"),
+  },
+
+  {
+    key: "remainingDebt",
+    label: "RM DEBT",
+    className: (row: any) => {
+      const amount = row.amount;
+      const remaining = row.remainingDebt;
+
+      const percentPaid = ((amount - remaining) / amount) * 100;
+
+      return cn(
+        percentPaid >= 80
+          ? "text-green-500"
+          : percentPaid >= 50
+          ? "text-yellow-500"
+          : "text-red-500"
+      );
+    },
   },
 
   {
@@ -110,7 +126,9 @@ const currencyColumnsConfig = [
     className: (row: any) =>
       cn(
         row.status === "REPAID" && "text-green-600",
-        row.status === "PENDING" && "text-yellow-500"
+        row.status === "PENDING" && "text-yellow-500",
+        row.status === "REVERSED" && "text-purple-700",
+        row.status === "COMPLETED" && "text-green-600"
       ),
   },
 ];
