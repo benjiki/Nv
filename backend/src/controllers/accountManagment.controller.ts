@@ -91,3 +91,17 @@ export const getTransactionByIdDataController = async (req: Request, res: Respon
     res.status(200).json(new ApiSuccess(transactions, "All transactions"))
 
 }
+
+export const reverseTransactionController = async (req: Request, res: Response) => {
+    const { error: paramError, value: paramValue } = AccountManagmentValidation.accountManagmentParamSchema.validate(req.params)
+    if (paramError) {
+        const messages = [
+            ...(paramError?.details.map((err) => err.message) || [])
+        ];
+        return res.status(400).json({
+            error: messages.join(", "),
+        });
+    }
+    const reversalTransaction = await AccountManagment.reverseTransactionService({ tranferId: paramValue.id })
+    res.status(200).json(new ApiSuccess(reversalTransaction, "Transaction reversed successfull"))
+}
