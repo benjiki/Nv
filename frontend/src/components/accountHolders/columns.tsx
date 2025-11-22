@@ -11,8 +11,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
-import Reverse from "./reverse";
+
 import { useState } from "react";
+import Delete from "./delete";
 
 /** Helper to format numbers as USD currency */
 const formatCurrency = (value: unknown) => {
@@ -66,7 +67,7 @@ const AccountActions = ({ account }: { account: AccountHolder }) => {
         >
           <p className="text-red-600">Delete</p>
         </DropdownMenuItem>
-        <Reverse
+        <Delete
           id={account.id}
           open={deleteDialogOpen}
           onOpenChange={setDeleteDialogOpen}

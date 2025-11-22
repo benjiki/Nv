@@ -17,10 +17,14 @@ export const createLoanService = async (data: {
 
     if (!lender || !borrower) throw new ApiError(404, "Lender or borrower not found");
 
+    if (lender.balance.lt(new Decimal(data.amount))) {
+        throw new ApiError(400, "Lender has insufficient funds");
+    }
     // ✅ Create loan and adjust balances (optional logic)
     const loan = await prisma.$transaction(async (tx) => {
         const interestAmount = (data.amount * data.interestRate) / 100;
         const totalAmount = data.amount + interestAmount;
+
 
         // Deduct amount from lender’s balance
         await tx.accountholder.update({
@@ -60,43 +64,52 @@ export const reversalLoanService = async (data: { loanId: number }) => {
 
     const reversal = await prisma.$transaction(async (tx) => {
 
-        // Prevent reversal if repayments exist
+        // Check for repayments
         const repaymentCount = await tx.repayment.count({
             where: { loanId: original.id }
         });
+        if (repaymentCount > 0) throw new ApiError(400, "Cannot reverse a loan with existing repayments");
 
-        if (repaymentCount > 0) {
-            throw new ApiError(400, "Cannot reverse a loan with existing repayments");
-        }
+        // Calculate principal and interest portions
+        const totalAmount = new Decimal(original.amount); // total amount borrower received
+        const interestRate = new Decimal(original.interestRate);
+        const principal = totalAmount.div(interestRate.div(100).plus(1));
+        const interest = totalAmount.minus(principal);
 
-        // Borrower balance check
-        const accountHolder = await tx.accountholder.findUnique({
+        // Fetch borrower balance
+        const borrowerAccount = await tx.accountholder.findUnique({
             where: { id: original.borrowerId },
             select: { balance: true }
         });
+        if (!borrowerAccount) throw new ApiError(404, "Borrower not found");
 
-        if (!accountHolder) throw new ApiError(404, "Borrower not found");
-
-        if (accountHolder.balance.lessThan(original.amount)) {
+        if (new Decimal(borrowerAccount.balance).lt(totalAmount)) {
             throw new ApiError(400, "Borrower has insufficient funds to reverse loan");
         }
 
-        // Move the money back
+        // Reverse the principal back to lender
         await tx.accountholder.update({
             where: { id: original.lenderId },
-            data: { balance: { increment: original.amount } }
+            data: { balance: { increment: principal } }
         });
 
+        // Remove total amount from borrower (principal + interest)
         await tx.accountholder.update({
             where: { id: original.borrowerId },
-            data: { balance: { decrement: original.amount } }
+            data: { balance: { decrement: totalAmount } }
         });
 
+        // Update loan status
         await tx.loan.update({
             where: { id: original.id },
-            data: { status: "REVERSED" }
+            data: { status: LoanStatus.REVERSED }
         });
 
+        return {
+            message: "Loan reversed successfully",
+            principal: principal.toString(),
+            interestRemoved: interest.toString()
+        };
     });
 
     return reversal;

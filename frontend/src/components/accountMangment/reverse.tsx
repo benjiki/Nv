@@ -12,41 +12,57 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { accountHolderService } from "@/utils/accountHolderService";
+import { accountMangementService } from "@/utils/accountManagmentService";
+import type { TransactionType } from "types";
 
-interface DeleteProp {
+interface RevereseProp {
   id: number;
   open: boolean; // control visibility
+  type: TransactionType;
   onOpenChange: Dispatch<SetStateAction<boolean>>; // callback when dialog opens/closes
 }
 
-const Delete = ({ id, open, onOpenChange }: DeleteProp) => {
+const Reverese = ({ id, type, open, onOpenChange }: RevereseProp) => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: () => accountHolderService.deleteAccountHolder(id),
+    mutationFn: () => accountMangementService.reverseTransaction(id, type),
     onSuccess: (res) => {
-      toast.success(res.message || "Account deleted");
+      toast.success(res.message || "Transaction Reversed");
+
+      queryClient.invalidateQueries({
+        queryKey: ["accountTransactions"],
+      });
       queryClient.invalidateQueries({ queryKey: ["accountHolders"] });
-      queryClient.invalidateQueries({ queryKey: ["accountHoldersStats"] });
-      onOpenChange(false); // close dialog after deletion
+      onOpenChange(false);
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to reverse transaction");
     },
   });
+
+  const handleReverse = () => {
+    if (type === "NOT_SET") {
+      toast.error("Cannot reverse a transaction with type NOT_SET");
+      return;
+    }
+    mutation.mutate();
+  };
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="text-red-600">
-            Are you absolutely sure?
+            {type} Are you absolutely sure?
           </AlertDialogTitle>
           <AlertDialogDescription className="flex flex-col gap-1">
             <p>
-              Accounts with transactions will be archived (soft deleted).
-              Accounts without transactions will be permanently removed.
+              The transaction will be reversed. Are you sure you want to
+              proceed?
             </p>
             <p className="text-sm text-red-500">
-              Do you want to proceed with deleting this account?
+              This action cannot be undone.
             </p>
           </AlertDialogDescription>
         </AlertDialogHeader>
@@ -54,11 +70,8 @@ const Delete = ({ id, open, onOpenChange }: DeleteProp) => {
           <AlertDialogCancel onClick={() => onOpenChange(false)}>
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction
-            onClick={() => mutation.mutate()}
-            className="bg-red-600"
-          >
-            Delete
+          <AlertDialogAction onClick={handleReverse} className="bg-red-600">
+            Reverse
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -66,4 +79,4 @@ const Delete = ({ id, open, onOpenChange }: DeleteProp) => {
   );
 };
 
-export default Delete;
+export default Reverese;

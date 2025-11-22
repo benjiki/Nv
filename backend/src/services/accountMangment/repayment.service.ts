@@ -168,5 +168,4 @@ export const reversalRepaymentService = async (data: { repaymentId: number }) =>
         });
     });
 
-    // Return nothing
 };

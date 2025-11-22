@@ -16,7 +16,6 @@ export const createTransferService = async (data: {
     const receiver = await prisma.accountholder.findUnique({ where: { id: data.receiverId } });
 
     if (!sender || !receiver) throw new ApiError(404, "Sender or receiver not found");
-    // if (sender.balance < data.amount) throw new ApiError(400, "Insufficient funds");
     if (sender.balance.lt(new Decimal(data.amount))) {
         throw new ApiError(400, "Insufficient funds");
     }

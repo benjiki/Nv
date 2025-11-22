@@ -1,4 +1,4 @@
-import type { ApiResponse, AccountManagementResponse, AccountManagementFilter } from "types";
+import type { ApiResponse, AccountManagementResponse, AccountManagementFilter, TransactionType } from "types";
 import api from "./api";
 
 export const accountMangementService = {
@@ -24,5 +24,29 @@ export const accountMangementService = {
         // Guarantee a return object
         return response.data.data ?? { data: [], total: 0 };
     },
+
+    reverseTransaction: async (id: number, type: TransactionType) => {
+        let endpoint = "";
+
+        switch (type) {
+            case "TRANSFER":
+                endpoint = `/transfer/${id}/reverse`;
+                break;
+            case "DEPOSIT":
+                endpoint = `/deposit/${id}/reverse`;
+                break;
+            case "REPAYMENT":
+                endpoint = `/repayment/${id}/reverse`;
+                break;
+            case "LOAN":
+                endpoint = `/loan/${id}/reverse`;
+                break;
+            default:
+                throw new Error("Invalid transaction type");
+        }
+
+        const response = await api.put(`/account-managment${endpoint}`);
+        return response.data;
+    }
 };
 

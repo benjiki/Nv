@@ -9,11 +9,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { useState } from "react";
-import Delete from "./delete";
+
+import Reverese from "./reverse";
 
 const formatCurrency = (value: unknown) => {
   const amount = parseFloat((value as string) || "0");
@@ -32,7 +32,6 @@ const RightAlignedCell = ({
 
 /** Actions menu component */
 const AccountActions = ({ accManage }: { accManage: AccountManagment }) => {
-  const navigate = useNavigate();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   return (
@@ -46,24 +45,27 @@ const AccountActions = ({ accManage }: { accManage: AccountManagment }) => {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={() => navigate(`/accountholders/edit/${accManage.id}`)}
-        >
-          Edit
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={(e) => {
-            e.preventDefault();
-            setDeleteDialogOpen(true);
-          }}
-        >
-          <p className="text-red-600">Delete</p>
-        </DropdownMenuItem>
-        <Delete
-          id={accManage.id}
-          open={deleteDialogOpen}
-          onOpenChange={setDeleteDialogOpen}
-        />
+        {accManage.status !== "REVERSED" ? (
+          <>
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.preventDefault();
+                setDeleteDialogOpen(true);
+              }}
+            >
+              <p className="text-purple-500">Reverse</p>
+            </DropdownMenuItem>
+
+            <Reverese
+              id={accManage.id}
+              type={accManage.type}
+              open={deleteDialogOpen}
+              onOpenChange={setDeleteDialogOpen}
+            />
+          </>
+        ) : (
+          <p className="text-gray-600">can not reverse</p>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

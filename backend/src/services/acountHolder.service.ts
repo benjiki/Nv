@@ -157,12 +157,48 @@ export const getAllAccountHoldersService = async (data: {
         where: filters,
         orderBy: { createdAt: "desc" },
         include: {
-            deposits: true,
-            loansTaken: { include: { repayments: true } },
-            loansGiven: true,
-            transfersIn: true,
-            transfersOut: true,
-            repayments: true,
+            deposits: {
+                where: {
+                    status: {
+                        not: "REVERSED",
+                    },
+                },
+            },
+            loansTaken: {
+                where: {
+                    status: {
+                        not: "REVERSED",
+                    },
+                }, include: { repayments: true }
+            },
+            loansGiven: {
+                where: {
+                    status: {
+                        not: "REVERSED",
+                    },
+                },
+            },
+            transfersIn: {
+                where: {
+                    status: {
+                        not: "REVERSED",
+                    },
+                },
+            },
+            transfersOut: {
+                where: {
+                    status: {
+                        not: "REVERSED",
+                    },
+                },
+            },
+            repayments: {
+                where: {
+                    status: {
+                        not: "REVERSED",
+                    },
+                },
+            },
         },
     });
 
@@ -194,7 +230,7 @@ export const getAllAccountHoldersService = async (data: {
             id: ah.id,
             name: ah.name,
             accountNumber: ah.accountNumber,
-            balance: Number(ah.balance),
+            balance: ah.balance,
             depositsAmount,
             outstandingDebt,
             transfersInAmount,

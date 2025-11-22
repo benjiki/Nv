@@ -36,7 +36,7 @@ export interface AccountHolderResponse {
 }
 
 export type TransactionType = "TRANSFER" | "REPAYMENT" | "LOAN" | "DEPOSIT" | "NOT_SET";
-export type Status = "REPAID" | "PENDING" | "NOT_SET"
+export type Status = "REPAID" | "PENDING" | "NOT_SET" | "REVERSED"
 export interface AccountManagment {
     id: number;
     type: TransactionType;

@@ -20,7 +20,7 @@ interface DeleteProp {
   onOpenChange: Dispatch<SetStateAction<boolean>>; // callback when dialog opens/closes
 }
 
-const Reverse = ({ id, open, onOpenChange }: DeleteProp) => {
+const Delete = ({ id, open, onOpenChange }: DeleteProp) => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
@@ -42,7 +42,9 @@ const Reverse = ({ id, open, onOpenChange }: DeleteProp) => {
           </AlertDialogTitle>
           <AlertDialogDescription className="flex flex-col gap-1">
             <p>
-              The transaction will be reversed and the funds will be rolled back
+              The account holder will be permanently deleted from the system. if
+              the account is associated with any transactions, the account will
+              be <b className="text-orange-400">soft deleted</b>.
             </p>
             <p className="text-sm text-red-500">Do you want to proceed ?</p>
           </AlertDialogDescription>
@@ -55,7 +57,7 @@ const Reverse = ({ id, open, onOpenChange }: DeleteProp) => {
             onClick={() => mutation.mutate()}
             className="bg-red-600"
           >
-            Reverse
+            Delete
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -63,4 +65,4 @@ const Reverse = ({ id, open, onOpenChange }: DeleteProp) => {
   );
 };
 
-export default Reverse;
+export default Delete;

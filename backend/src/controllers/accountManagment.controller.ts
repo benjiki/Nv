@@ -4,9 +4,9 @@ import * as AccountManagment from "../services/accountMangment/accountManagment.
 import * as AccountManagmentValidation from "../validations/accountMangement.validation.js";
 import { io } from "../index.js";
 import { createDepositService, reversaDepositService } from "../services/accountMangment/deposit.service.js";
-import { createLoanService } from "../services/accountMangment/loan.service.js";
+import { createLoanService, reversalLoanService } from "../services/accountMangment/loan.service.js";
 import { createTransferService, reverseTransactionService } from "../services/accountMangment/transfer.service.js";
-import { createRepaymentService } from "../services/accountMangment/repayment.service.js";
+import { createRepaymentService, reversalRepaymentService } from "../services/accountMangment/repayment.service.js";
 
 export const createDepositController = async (req: Request, res: Response) => {
     const { error, value } = AccountManagmentValidation.depositAccountManagmentSchema.validate(req.body, {
@@ -122,4 +122,32 @@ export const reverseDepositController = async (req: Request, res: Response) => {
     }
     const reversalDeposit = await reversaDepositService({ depositId: paramValue.id })
     res.status(200).json(new ApiSuccess(reversalDeposit, "Deposit reversed successfully"))
+}
+
+export const reverseRepaymentController = async (req: Request, res: Response) => {
+    const { error: paramError, value: paramValue } = AccountManagmentValidation.accountManagmentParamSchema.validate(req.params)
+    if (paramError) {
+        const messages = [
+            ...(paramError?.details.map((err) => err.message) || [])
+        ];
+        return res.status(400).json({
+            error: messages.join(", "),
+        });
+    }
+    const reversalDeposit = await reversalRepaymentService({ repaymentId: paramValue.id })
+    res.status(200).json(new ApiSuccess(reversalDeposit, "Repayment reversed successfully"))
+}
+
+export const reverseLoanController = async (req: Request, res: Response) => {
+    const { error: paramError, value: paramValue } = AccountManagmentValidation.accountManagmentParamSchema.validate(req.params)
+    if (paramError) {
+        const messages = [
+            ...(paramError?.details.map((err) => err.message) || [])
+        ];
+        return res.status(400).json({
+            error: messages.join(", "),
+        });
+    }
+    const reversalDeposit = await reversalLoanService({ loanId: paramValue.id })
+    res.status(200).json(new ApiSuccess(reversalDeposit, "Loan reversed successfully"))
 }
