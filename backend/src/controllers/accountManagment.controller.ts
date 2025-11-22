@@ -1,8 +1,12 @@
 import { Request, Response } from "express";
 import { ApiError, ApiSuccess } from "../utils/ApiError.js";
-import * as AccountManagment from "../services/accountManagment.service.js"
+import * as AccountManagment from "../services/accountMangment/accountManagment.service.js"
 import * as AccountManagmentValidation from "../validations/accountMangement.validation.js";
 import { io } from "../index.js";
+import { createDepositService } from "../services/accountMangment/deposit.service.js";
+import { createLoanService } from "../services/accountMangment/loan.service.js";
+import { createTransferService, reverseTransactionService } from "../services/accountMangment/transfer.service.js";
+import { createRepaymentService } from "../services/accountMangment/repayment.service.js";
 
 export const createDepositController = async (req: Request, res: Response) => {
     const { error, value } = AccountManagmentValidation.depositAccountManagmentSchema.validate(req.body, {
@@ -12,7 +16,7 @@ export const createDepositController = async (req: Request, res: Response) => {
         const messages = error.details.map((err) => err.message);
         throw new ApiError(400, messages.join(", "));
     }
-    const accountHolder = await AccountManagment.createDepositService(value)
+    const accountHolder = await createDepositService(value)
     io.emit("accountTransactionUpdated");
     res.status(201).json(new ApiSuccess(accountHolder, "Deposit successfull"));
 }
@@ -25,7 +29,7 @@ export const createLoanController = async (req: Request, res: Response) => {
         const messages = error.details.map((err) => err.message);
         throw new ApiError(400, messages.join(", "));
     }
-    const accountHolder = await AccountManagment.createLoanService(value)
+    const accountHolder = await createLoanService(value)
     io.emit("accountTransactionUpdated");
     res.status(201).json(new ApiSuccess(accountHolder, "Loan successfull"));
 }
@@ -39,7 +43,7 @@ export const createTransferController = async (req: Request, res: Response) => {
         const messages = error.details.map((err) => err.message);
         throw new ApiError(400, messages.join(", "));
     }
-    const accountHolder = await AccountManagment.createTransferService(value)
+    const accountHolder = await createTransferService(value)
     io.emit("accountTransactionUpdated");
     res.status(201).json(new ApiSuccess(accountHolder, "Transfer successfull"));
 }
@@ -53,7 +57,7 @@ export const createRepaymentController = async (req: Request, res: Response) => 
         const messages = error.details.map((err) => err.message);
         throw new ApiError(400, messages.join(", "));
     }
-    const accountHolder = await AccountManagment.createRepaymentService(value)
+    const accountHolder = await createRepaymentService(value)
     io.emit("accountTransactionUpdated");
     res.status(201).json(new ApiSuccess(accountHolder, "Repayment successfull"));
 }
@@ -102,6 +106,6 @@ export const reverseTransactionController = async (req: Request, res: Response) 
             error: messages.join(", "),
         });
     }
-    const reversalTransaction = await AccountManagment.reverseTransactionService({ tranferId: paramValue.id })
+    const reversalTransaction = await reverseTransactionService({ tranferId: paramValue.id })
     res.status(200).json(new ApiSuccess(reversalTransaction, "Transaction reversed successfull"))
 }
