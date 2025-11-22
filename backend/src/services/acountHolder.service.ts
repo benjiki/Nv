@@ -67,12 +67,33 @@ export const getAccountHolderService = async (data: { id: number }) => {
     const accountHolder = await prisma.accountholder.findUnique({
         where: { id: Number(data.id), deletedAt: null },
         include: {
-            deposits: true,
-            loansTaken: { include: { repayments: true } },
-            loansGiven: true,
-            transfersIn: true,
-            transfersOut: true,
-            repayments: true,
+            deposits: {
+                where: { status: { not: "REVERSED" } },
+            },
+            loansTaken: {
+                where: {
+                    NOT: {
+                        status: { in: ["REVERSED", "REPAID", "DEFAULTED"] }
+                    }
+                },
+                include: {
+                    repayments: {
+                        where: { status: { not: "REVERSED" } },
+                    }
+                }
+            },
+            loansGiven: {
+                where: { status: { not: "REVERSED" } },
+            },
+            transfersIn: {
+                where: { status: { not: "REVERSED" } },
+            },
+            transfersOut: {
+                where: { status: { not: "REVERSED" } },
+            },
+            repayments: {
+                where: { status: { not: "REVERSED" } },
+            },
         },
     });
 
@@ -138,8 +159,9 @@ export const getAllAccountHoldersService = async (data: {
     page?: number
     limit?: number
 }) => {
-    const page = data.page ?? 1;  // default to page 1
-    const limit = data.limit ?? 10; // default to 10 items per page
+
+    const page = data.page ?? 1;
+    const limit = data.limit ?? 10;
 
     const filters: any = { deletedAt: null };
 
@@ -150,7 +172,6 @@ export const getAllAccountHoldersService = async (data: {
         where: filters,
     });
 
-
     const accountHolders = await prisma.accountholder.findMany({
         skip: (page - 1) * limit,
         take: limit,
@@ -158,73 +179,65 @@ export const getAllAccountHoldersService = async (data: {
         orderBy: { createdAt: "desc" },
         include: {
             deposits: {
-                where: {
-                    status: {
-                        not: "REVERSED",
-                    },
-                },
+                where: { status: { not: "REVERSED" } },
             },
             loansTaken: {
                 where: {
-                    status: {
-                        not: "REVERSED",
-                    },
-                }, include: { repayments: true }
+                    NOT: {
+                        status: { in: ["REVERSED", "REPAID", "DEFAULTED"] }
+                    }
+                },
+                include: {
+                    repayments: {
+                        where: { status: { not: "REVERSED" } },
+                    }
+                }
             },
             loansGiven: {
-                where: {
-                    status: {
-                        not: "REVERSED",
-                    },
-                },
+                where: { status: { not: "REVERSED" } },
             },
             transfersIn: {
-                where: {
-                    status: {
-                        not: "REVERSED",
-                    },
-                },
+                where: { status: { not: "REVERSED" } },
             },
             transfersOut: {
-                where: {
-                    status: {
-                        not: "REVERSED",
-                    },
-                },
+                where: { status: { not: "REVERSED" } },
             },
             repayments: {
-                where: {
-                    status: {
-                        not: "REVERSED",
-                    },
-                },
+                where: { status: { not: "REVERSED" } },
             },
         },
     });
 
-
     const formatted = accountHolders.map((ah) => {
+
         // Total deposits
-        const depositsAmount = ah.deposits.reduce((sum, d) => sum + Number(d.amount), 0);
+        const depositsAmount = ah.deposits
+            .reduce((sum, d) => sum + Number(d.amount), 0);
 
-        // Total loan taken
-        const totalLoanTaken = ah.loansTaken.reduce((sum, loan) => sum + Number(loan.amount), 0);
+        // Total loan taken (REVERSED loans already filtered by Prisma)
+        const totalLoanTaken = ah.loansTaken
+            .reduce((sum, loan) => sum + Number(loan.amount), 0);
 
-        // Total repaid on those loans
-        const totalRepaidOnLoans = ah.loansTaken.reduce(
-            (sum, loan) => sum + loan.repayments.reduce((rSum, r) => rSum + Number(r.amount), 0),
-            0
-        );
+        // Total repaid for these loans (REVERSED repayments already filtered by Prisma)
+        const totalRepaidOnLoans = ah.loansTaken
+            .reduce((sum, loan) => {
+                const repaid = loan.repayments
+                    .reduce((rSum, r) => rSum + Number(r.amount), 0);
+                return sum + repaid;
+            }, 0);
 
-        // Outstanding debt = total loan taken - total repaid
         const outstandingDebt = totalLoanTaken - totalRepaidOnLoans;
 
-        // Total transfers
-        const transfersInAmount = ah.transfersIn.reduce((sum, t) => sum + Number(t.amount), 0);
-        const transfersOutAmount = ah.transfersOut.reduce((sum, t) => sum + Number(t.amount), 0);
+        // Transfers
+        const transfersInAmount = ah.transfersIn
+            .reduce((sum, t) => sum + Number(t.amount), 0);
 
-        // Total repayments made by this user
-        const repaymentsAmount = ah.repayments.reduce((sum, r) => sum + Number(r.amount), 0);
+        const transfersOutAmount = ah.transfersOut
+            .reduce((sum, t) => sum + Number(t.amount), 0);
+
+        // User-level repayments
+        const repaymentsAmount = ah.repayments
+            .reduce((sum, r) => sum + Number(r.amount), 0);
 
         return {
             id: ah.id,

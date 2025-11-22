@@ -18,6 +18,7 @@ export const createDepositController = async (req: Request, res: Response) => {
     }
     const accountHolder = await createDepositService(value)
     io.emit("accountTransactionUpdated");
+    io.emit("accountHoldersUpdated")
     res.status(201).json(new ApiSuccess(accountHolder, "Deposit successfull"));
 }
 
@@ -31,6 +32,7 @@ export const createLoanController = async (req: Request, res: Response) => {
     }
     const accountHolder = await createLoanService(value)
     io.emit("accountTransactionUpdated");
+    io.emit("accountHoldersUpdated")
     res.status(201).json(new ApiSuccess(accountHolder, "Loan successfull"));
 }
 
@@ -45,6 +47,7 @@ export const createTransferController = async (req: Request, res: Response) => {
     }
     const accountHolder = await createTransferService(value)
     io.emit("accountTransactionUpdated");
+    io.emit("accountHoldersUpdated")
     res.status(201).json(new ApiSuccess(accountHolder, "Transfer successfull"));
 }
 
@@ -59,6 +62,7 @@ export const createRepaymentController = async (req: Request, res: Response) => 
     }
     const accountHolder = await createRepaymentService(value)
     io.emit("accountTransactionUpdated");
+    io.emit("accountHoldersUpdated")
     res.status(201).json(new ApiSuccess(accountHolder, "Repayment successfull"));
 }
 

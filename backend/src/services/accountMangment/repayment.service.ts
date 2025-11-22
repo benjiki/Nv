@@ -41,7 +41,11 @@ export const createRepaymentService = async (data: {
     // ✅ Calculate remaining debt
     const totalRepaid = await prisma.repayment.aggregate({
         _sum: { amount: true },
-        where: { loanId: data.loanId },
+        where: {
+            loanId: data.loanId, status: {
+                not: "REVERSED",
+            },
+        },
     });
 
     const totalRepaidAmount = totalRepaid._sum.amount || new Decimal(0);
