@@ -55,7 +55,19 @@ export const reverseTransactionService = async (data: { tranferId: number }) => 
     if (!original) throw new ApiError(404, "Transfer Not Found");
     if (original.status === "REVERSED") throw new ApiError(400, "transfer already reversed")
 
-    const reveral = await prisma.$transaction(async (tx) => {
+    const reversal = await prisma.$transaction(async (tx) => {
+
+        const accountHolder = await tx.accountholder.findUnique({
+            where: { id: original.receiverId },
+            select: { balance: true }
+        });
+
+        if (!accountHolder) throw new ApiError(404, "Account holder not found");
+
+        // Check sufficient balance
+        if (accountHolder.balance.toNumber() < original.amount.toNumber()) {
+            throw new ApiError(400, "Receiver has insufficient funds to reverse loan");
+        }
         // reverse money to the sender
         await tx.accountholder.update({
             where: { id: original.senderId },
@@ -68,7 +80,7 @@ export const reverseTransactionService = async (data: { tranferId: number }) => 
             data: { balance: { decrement: original.amount } }
         })
 
-        // create the reveral transaction
+        // create the reversal transaction
         const newReversal = await tx.transfer.create({
             data: {
                 senderId: original.receiverId,
@@ -86,5 +98,5 @@ export const reverseTransactionService = async (data: { tranferId: number }) => 
         })
         return newReversal
     })
-    return reveral
+    return reversal
 }

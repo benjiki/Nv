@@ -3,7 +3,7 @@ import { ApiError, ApiSuccess } from "../utils/ApiError.js";
 import * as AccountManagment from "../services/accountMangment/accountManagment.service.js"
 import * as AccountManagmentValidation from "../validations/accountMangement.validation.js";
 import { io } from "../index.js";
-import { createDepositService } from "../services/accountMangment/deposit.service.js";
+import { createDepositService, reversaDepositService } from "../services/accountMangment/deposit.service.js";
 import { createLoanService } from "../services/accountMangment/loan.service.js";
 import { createTransferService, reverseTransactionService } from "../services/accountMangment/transfer.service.js";
 import { createRepaymentService } from "../services/accountMangment/repayment.service.js";
@@ -107,5 +107,19 @@ export const reverseTransactionController = async (req: Request, res: Response) 
         });
     }
     const reversalTransaction = await reverseTransactionService({ tranferId: paramValue.id })
-    res.status(200).json(new ApiSuccess(reversalTransaction, "Transaction reversed successfull"))
+    res.status(200).json(new ApiSuccess(reversalTransaction, "Transaction reversed successfully"))
+}
+
+export const reverseDepositController = async (req: Request, res: Response) => {
+    const { error: paramError, value: paramValue } = AccountManagmentValidation.accountManagmentParamSchema.validate(req.params)
+    if (paramError) {
+        const messages = [
+            ...(paramError?.details.map((err) => err.message) || [])
+        ];
+        return res.status(400).json({
+            error: messages.join(", "),
+        });
+    }
+    const reversalDeposit = await reversaDepositService({ depositId: paramValue.id })
+    res.status(200).json(new ApiSuccess(reversalDeposit, "Deposit reversed successfully"))
 }
