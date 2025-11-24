@@ -55,6 +55,11 @@ const Repayment = () => {
       accountMangementService.repaymentTransaction(values),
     onSuccess: (res) => {
       toast.success(res.message || "Repayment successful");
+      form.reset({
+        loanId: undefined,
+        payerId: undefined,
+        amount: undefined,
+      });
       queryClient.invalidateQueries({ queryKey: ["accountTransactions"] });
     },
     onError: (error) => {

@@ -56,6 +56,10 @@ const Deposit = () => {
 
     onSuccess: (res) => {
       toast.success(res.message || "Deposit successful");
+      form.reset({
+        userId: undefined,
+        amount: undefined,
+      });
       queryClient.invalidateQueries({ queryKey: ["accountManagment"] });
     },
     onError: (error) => {

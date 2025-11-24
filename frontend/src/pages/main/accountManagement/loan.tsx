@@ -57,6 +57,12 @@ const Loan = () => {
 
     onSuccess: (res) => {
       toast.success(res.message || "Loaned successfully");
+      form.reset({
+        lenderId: undefined,
+        borrowerId: undefined,
+        amount: undefined,
+        interestRate: 0,
+      });
       queryClient.invalidateQueries({ queryKey: ["accountManagment"] });
     },
     onError: (error) => {
