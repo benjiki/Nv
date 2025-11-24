@@ -47,6 +47,26 @@ export const accountMangementService = {
 
         const response = await api.put(`/account-managment${endpoint}`);
         return response.data;
-    }
+    },
+
+    depositTransaction: async (data: { userId: number, amount: number }) => {
+        const res = await api.post("/account-managment/deposit/", data);
+        return res.data
+    },
+
+    transferTransaction: async (data: { senderId: number, receiverId: number, amount: number }) => {
+        const res = await api.post("/account-managment/transfer/", data);
+        return res.data
+    },
+
+    loanTransaction: async (data: { lenderId: number, borrowerId: number, amount: number, interestRate?: number }) => {
+        const res = await api.post("/account-managment/loan/", data);
+        return res.data
+    },
+
+    repaymentTransaction: async (data: { loanId: number, payerId: number, amount: number }) => {
+        const res = await api.post("/account-managment/repayment/", data);
+        return res.data
+    },
 };
 

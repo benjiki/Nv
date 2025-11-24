@@ -37,6 +37,10 @@ const CreateAccHolder = () => {
       }
       queryClient.refetchQueries({ queryKey: ["accountHolders"] });
       toast.success(data.message || "Account Created ");
+      form.reset({
+        name: "",
+        accountNumber: "",
+      });
     },
 
     onError: (error) => {

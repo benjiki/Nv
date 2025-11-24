@@ -68,7 +68,7 @@ function App() {
                 }
               />
               <Route
-                path="/accountmanagment/deposit"
+                path="/accountmanagment/deposit/"
                 element={
                   <PageWrapper>
                     <Deposit />
