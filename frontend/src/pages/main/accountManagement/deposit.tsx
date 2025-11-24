@@ -27,6 +27,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
 import Loader from "@/components/Loader";
+import type { AxiosError } from "axios";
 
 // ---------- FIXED SCHEMA ----------
 const depositSchema = z.object({
@@ -56,6 +57,23 @@ const Deposit = () => {
     onSuccess: (res) => {
       toast.success(res.message || "Deposit successful");
       queryClient.invalidateQueries({ queryKey: ["accountManagment"] });
+    },
+    onError: (error) => {
+      const axiosError = error as AxiosError<{
+        message?: string;
+        errors?: string[];
+        error?: string;
+      }>;
+
+      console.log("❌ Backend error:", axiosError.response?.data);
+      // Pick the most useful message
+      const msg =
+        axiosError.response?.data?.message || // For Joi or custom message
+        axiosError.response?.data?.errors?.join(", ") || // For validation arrays
+        axiosError.response?.data?.error || // For your backend "error" field
+        "Login failed"; // fallback
+
+      toast.error(msg);
     },
   });
 

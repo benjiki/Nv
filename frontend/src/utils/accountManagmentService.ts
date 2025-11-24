@@ -1,4 +1,4 @@
-import type { ApiResponse, AccountManagementResponse, AccountManagementFilter, TransactionType } from "types";
+import type { ApiResponse, AccountManagementResponse, AccountManagementFilter, TransactionType, LoanRepayments, LoanRepaymentsResponse } from "types";
 import api from "./api";
 
 export const accountMangementService = {
@@ -62,6 +62,14 @@ export const accountMangementService = {
     loanTransaction: async (data: { lenderId: number, borrowerId: number, amount: number, interestRate?: number }) => {
         const res = await api.post("/account-managment/loan/", data);
         return res.data
+    },
+
+    getRepaymentLoans: async () => {
+        const response = await api.get<ApiResponse<LoanRepaymentsResponse>>(
+            "/account-managment/loans",
+        );
+        // Guarantee a return object
+        return response.data.data ?? [];
     },
 
     repaymentTransaction: async (data: { loanId: number, payerId: number, amount: number }) => {

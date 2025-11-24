@@ -125,19 +125,36 @@ export const AllLoansWithActiveRepaymentService = async () => {
                 status: { in: ["REVERSED", "REPAID", "DEFAULTED"] }
             }
         },
-        include: { lender: true, borrower: true },
+        include: {
+            lender: true,
+            borrower: true,
+            repayments: true
+        },
     });
 
-    const formattedLoans = loans.map(l => ({
-        id: l.id,
-        type: "LOAN" as const,
-        amount: l.amount,
-        sender: l.lender.name,
-        receiver: l.borrower.name,
-        interestRate: l.interestRate,
-        status: l.status,
-        createdAt: l.createdAt,
-        remainingDebt: null
-    }));
+    const formattedLoans = loans.map(l => {
+        const originalAmount = l.amount.toNumber(); // already includes interest
+        const totalRepaid = l.repayments.reduce(
+            (sum, r) => sum + r.amount.toNumber(),
+            0
+        );
+
+        const remainingDebt = originalAmount - totalRepaid;
+
+        return {
+            id: l.id,
+            type: "LOAN" as const,
+            amount: originalAmount,
+            sender: l.lender.name,
+            senderid: l.lender.id,
+            reciverid: l.borrower.id,  // keep your spelling
+            receiver: l.borrower.name,
+            interestRate: l.interestRate,
+            status: l.status,
+            createdAt: l.createdAt,
+            remainingDebt: remainingDebt > 0 ? remainingDebt : 0
+        };
+    });
+
     return formattedLoans;
-}
+};

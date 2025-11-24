@@ -26,3 +26,24 @@ export const useAccountManager = (filters?: AccountManagementFilter) => {
         staleTime: 5000
     })
 };
+
+
+export const useLoanRepayment = () => {
+    const queryClient = useQueryClient();
+
+    useEffect(() => {
+        const handleUpdate = () => {
+            queryClient.invalidateQueries({ queryKey: ["accountTransactions"] });
+        };
+        socket.on("accountTransactionUpdated", handleUpdate);
+
+        return () => {
+            socket.off("accountTransactionUpdated", handleUpdate);
+        };
+    }, [queryClient]);
+
+    return useQuery({
+        queryKey: ["accountTransactions"],
+        queryFn: () => accountMangementService.getRepaymentLoans(),
+    });
+};

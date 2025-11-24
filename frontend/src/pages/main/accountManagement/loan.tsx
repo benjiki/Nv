@@ -25,6 +25,7 @@ import z from "zod";
 import Loader from "@/components/Loader";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import type { AxiosError } from "axios";
 
 const LoanSchema = z.object({
   lenderId: z.number(),
@@ -57,6 +58,23 @@ const Loan = () => {
     onSuccess: (res) => {
       toast.success(res.message || "Loaned successfully");
       queryClient.invalidateQueries({ queryKey: ["accountManagment"] });
+    },
+    onError: (error) => {
+      const axiosError = error as AxiosError<{
+        message?: string;
+        errors?: string[];
+        error?: string;
+      }>;
+
+      console.log("❌ Backend error:", axiosError.response?.data);
+      // Pick the most useful message
+      const msg =
+        axiosError.response?.data?.message || // For Joi or custom message
+        axiosError.response?.data?.errors?.join(", ") || // For validation arrays
+        axiosError.response?.data?.error || // For your backend "error" field
+        "Login failed"; // fallback
+
+      toast.error(msg);
     },
   });
 
@@ -206,7 +224,7 @@ const Loan = () => {
               />
 
               <Button type="submit">
-                {mutation.isPending ? "Processing…" : "Deposit"}
+                {mutation.isPending ? "Processing…" : "LOAN"}
               </Button>
             </form>
           </Form>

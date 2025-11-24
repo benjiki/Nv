@@ -53,6 +53,22 @@ export interface AccountManagementResponse {
     total: number;
 }
 
+export interface LoanRepayments {
+    id: number;
+    type: string;
+    amount: string,
+    sender: string,
+    senderid: number,
+    receiver: string,
+    receiverid: number,
+    interestRate: number,
+    status: Status,
+    createdAt: string,
+    remainingDebt: number | null
+}
+export type LoanRepaymentsResponse = LoanRepayments[];
+
+
 export interface AccountManagementFilter {
     sender?: string;
     receiver?: string;
