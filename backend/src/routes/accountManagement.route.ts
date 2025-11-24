@@ -6,6 +6,7 @@ const router = express.Router()
 
 router.post("/deposit", AccountManagement.createDepositController);
 router.post("/loan", AccountManagement.createLoanController);
+router.get("/loans", AccountManagement.AllLoansController);
 router.post("/transfer", AccountManagement.createTransferController);
 router.post("/repayment", AccountManagement.createRepaymentController);
 router.get("/:id", AccountManagement.getTransactionByIdDataController);

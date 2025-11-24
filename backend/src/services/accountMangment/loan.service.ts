@@ -114,3 +114,30 @@ export const reversalLoanService = async (data: { loanId: number }) => {
 
     return reversal;
 };
+
+export const AllLoansWithActiveRepaymentService = async () => {
+
+    const loans = await prisma.loan.findMany({
+        where: {
+            lender: { deletedAt: null },
+            borrower: { deletedAt: null },
+            NOT: {
+                status: { in: ["REVERSED", "REPAID", "DEFAULTED"] }
+            }
+        },
+        include: { lender: true, borrower: true },
+    });
+
+    const formattedLoans = loans.map(l => ({
+        id: l.id,
+        type: "LOAN" as const,
+        amount: l.amount,
+        sender: l.lender.name,
+        receiver: l.borrower.name,
+        interestRate: l.interestRate,
+        status: l.status,
+        createdAt: l.createdAt,
+        remainingDebt: null
+    }));
+    return formattedLoans;
+}

@@ -4,7 +4,7 @@ import * as AccountManagment from "../services/accountMangment/accountManagment.
 import * as AccountManagmentValidation from "../validations/accountMangement.validation.js";
 import { io } from "../index.js";
 import { createDepositService, reversaDepositService } from "../services/accountMangment/deposit.service.js";
-import { createLoanService, reversalLoanService } from "../services/accountMangment/loan.service.js";
+import { AllLoansWithActiveRepaymentService, createLoanService, reversalLoanService } from "../services/accountMangment/loan.service.js";
 import { createTransferService, reverseTransactionService } from "../services/accountMangment/transfer.service.js";
 import { createRepaymentService, reversalRepaymentService } from "../services/accountMangment/repayment.service.js";
 
@@ -154,4 +154,10 @@ export const reverseLoanController = async (req: Request, res: Response) => {
     }
     const reversalDeposit = await reversalLoanService({ loanId: paramValue.id })
     res.status(200).json(new ApiSuccess(reversalDeposit, "Loan reversed successfully"))
+}
+
+export const AllLoansController = async (req: Request, res: Response) => {
+    const AllLoans = await AllLoansWithActiveRepaymentService()
+
+    res.status(200).json(new ApiSuccess(AllLoans, "Loans"))
 }
