@@ -78,3 +78,21 @@ export interface AccountManagementFilter {
     page?: number;
     limit?: number;
 }
+
+export interface Users {
+    id: number,
+    phoneNumber: string,
+    role: string,
+    accountStatus: boolean,
+}
+export interface UsersResponse {
+    data: Users[];
+    total: number;
+}
+
+
+export interface UsersFilter {
+    phoneNumber?: string,
+    page?: number;
+    limit?: number;
+}

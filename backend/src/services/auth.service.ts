@@ -96,17 +96,21 @@ export const logoutUserService = async (userId: number) => {
 
 
 export const getAllUsersService = async () => {
-  const users = await prisma.user.findMany({
-    select: {
-      id: true,
-      phoneNumber: true,
-      role: true,
-      accountStatus: true,
-    },
-  });
+  const [users, total] = await Promise.all([
+    prisma.user.findMany({
+      select: {
+        id: true,
+        phoneNumber: true,
+        role: true,
+        accountStatus: true,
+      },
+    }),
+    prisma.user.count()
+  ]);
 
-  return users;
+  return { users, total };
 };
+
 
 export const getUserByIdService = async (data: { id: number }) => {
   const user = await prisma.user.findUnique({
