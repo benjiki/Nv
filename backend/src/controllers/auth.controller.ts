@@ -2,6 +2,10 @@
 import { Request, Response } from "express";
 import * as auth from "../services/auth.service.js";
 import { UserRoles, prisma } from "../prismaClient.js";
+import { ApiSuccess } from "../utils/ApiError.js";
+import { updateUserValidationSchema, userParamSchema } from "../validations/auth.validations.js";
+import { io } from "../index.js";
+
 export const registerUser = async (req: Request, res: Response) => {
   try {
     const user = await auth.regUserService(req.body);
@@ -96,3 +100,60 @@ export const logoutUser = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Logout failed" });
   }
 };
+
+
+export const getAllUsersController = async (req: Request, res: Response) => {
+
+  const allUsers = await auth.getAllUsersService()
+
+  res.status(200).json(new ApiSuccess(allUsers))
+}
+
+
+export const getUsersByIdController = async (req: Request, res: Response) => {
+  const { error: paramError, value: paramValue } = userParamSchema.validate(req.params);
+
+  if (paramError) {
+    const messages = [
+      ...(paramError?.details.map((err) => err.message) || [])
+    ];
+    return res.status(400).json({
+      error: messages.join(", "),
+    });
+  }
+
+  const users = await auth.getUserByIdService({ id: paramValue.id })
+
+  res.status(200).json(new ApiSuccess(users))
+}
+
+export const getUsersCountController = async (req: Request, res: Response) => {
+  const usersStat = await auth.usersCountService()
+
+  res.status(200).json(new ApiSuccess(usersStat))
+}
+
+export const usersUpdateController = async (req: Request, res: Response) => {
+  // Validate the body and the params
+  const { error: bodyError, value: bodyValue } = updateUserValidationSchema.validate(req.body);
+  const { error: paramError, value: paramValue } = userParamSchema.validate(req.params);
+
+  // If there's an error in the request body or params, return an error response
+  if (bodyError || paramError) {
+    const messages = [
+      ...(bodyError?.details.map((err) => err.message) || []),
+      ...(paramError?.details.map((err) => err.message) || [])
+    ];
+    return res.status(400).json({
+      error: messages.join(", "),
+    });
+  }
+
+  const accountHolder = await auth.usersUpdateService({
+    id: paramValue.id,
+    ...bodyValue
+  });
+  io.emit("usersUpdated");
+  res.status(201).json(new ApiSuccess(accountHolder, "User updated successfully"));
+
+}

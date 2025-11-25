@@ -3,6 +3,7 @@ import { UserRoles, prisma } from "../prismaClient.js";
 import jwt from "jsonwebtoken";
 import { generateAccessToken, generateRefreshToken } from "../utils/token.js";
 import bcrypt from "bcrypt";
+import { ApiError } from "../utils/ApiError.js";
 
 // Registration
 
@@ -91,3 +92,74 @@ export const logoutUserService = async (userId: number) => {
     data: { refreshToken: null },
   });
 };
+
+
+
+export const getAllUsersService = async () => {
+  const users = await prisma.user.findMany({
+    select: {
+      id: true,
+      phoneNumber: true,
+      role: true,
+      accountStatus: true,
+    },
+  });
+
+  return users;
+};
+
+export const getUserByIdService = async (data: { id: number }) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: data.id
+    },
+    select: {
+      id: true,
+      phoneNumber: true,
+      role: true,
+      accountStatus: true,
+    },
+  })
+
+  return user
+}
+
+export const usersUpdateService = async (data: {
+  id: number
+  phoneNumber: string;
+  password: string;
+}) => {
+  const checkUser = await prisma.user.count({
+    where: { id: Number(data.id) }
+  })
+
+  if (checkUser <= 0) {
+    throw new ApiError(404, "User dose not exist")
+  }
+
+  const nameInUse = await prisma.user.findFirst({
+    where: {
+      phoneNumber: data.phoneNumber,
+      NOT: { id: data.id }, // exclude the current user holder
+    },
+  });
+
+  if (nameInUse) {
+    throw new ApiError(400, "phoneNumber is already used by another user");
+  }
+
+  const updateUser = await prisma.user.update({
+    where: { id: data.id }, data: {
+      phoneNumber: data.phoneNumber,
+      password: data.password
+    }
+  })
+
+  return updateUser;
+}
+
+export const usersCountService = async () => {
+  const users = await prisma.user.count();
+
+  return users
+}

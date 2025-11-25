@@ -46,3 +46,36 @@ export const loginValidationSchema = Joi.object({
     "any.required": "Password is required.",
   }),
 }).unknown(false); // Optional: Reject unknown fields
+
+export const updateUserValidationSchema = Joi.object({
+  phoneNumber: Joi.string()
+    .pattern(/^[0-9]{10}$/)
+    .required()
+    .messages({
+      "string.pattern.base": "Phone number must be exactly 10 digits.",
+      "string.empty": "Phone number is required.",
+      "any.required": "Phone number is required.",
+    }),
+
+  role: Joi.string().valid("Customer", "Admin").optional().messages({
+    "any.only": 'Role must be either "Customer" or "Admin".',
+    "string.base": "Role must be a string.",
+  }),
+
+  accountStatus: Joi.boolean().optional().messages({
+    "boolean.base": "Account status must be true or false.",
+  }),
+
+  password: Joi.string().min(6).required().messages({
+    "string.min": "Password must be at least 6 characters long.",
+    "string.empty": "Password is required.",
+    "any.required": "Password is required.",
+  }),
+}).unknown(false);
+
+export const userParamSchema = Joi.object({
+  id: Joi.number().integer().required().messages({
+    "any.required": "ID is required",
+    "number.base": "ID must be a number",
+  }),
+}).unknown(false);

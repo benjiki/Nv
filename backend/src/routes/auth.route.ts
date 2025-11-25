@@ -36,7 +36,10 @@ router.get(
   authorizeRoles(), // any authenticated user
   authController.getMe
 );
-
+router.get("/users", authController.getAllUsersController);
+router.get("/user/:id", authController.getUsersByIdController);
+router.get("/users-stats", authController.getUsersCountController);
+router.put("/user/:id", authController.usersUpdateController)
 router.get(
   "/admin-only",
   authorizeRoles("Admin"), // only Admins
