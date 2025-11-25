@@ -1,4 +1,4 @@
-import type { ApiResponse, AccountManagementResponse, AccountManagementFilter, TransactionType, LoanRepayments, LoanRepaymentsResponse } from "types";
+import type { ApiResponse, AccountManagementResponse, AccountManagementFilter, TransactionType,LoanRepaymentsResponse } from "types";
 import api from "./api";
 
 export const accountMangementService = {

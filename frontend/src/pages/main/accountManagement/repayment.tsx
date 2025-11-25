@@ -96,7 +96,7 @@ const Repayment = () => {
     ? data.filter((loan) => loan.senderid === selectedLenderId)
     : [];
 
-  const uniqueSenders = Array.from(
+  Array.from(
     new Map(data.map((loan) => [loan.senderid, loan.sender])).values()
   );
 

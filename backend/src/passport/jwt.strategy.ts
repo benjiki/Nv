@@ -7,9 +7,12 @@ import {
 import { prisma } from "../prismaClient.js";
 import { PassportStatic } from "passport";
 
+// Use environment variable if defined, otherwise fallback
+const SECRET_KEY = process.env.JWT_SECRET || "defaultSuperSecretKey";
+
 const options: StrategyOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.JWT_SECRET as string,
+  secretOrKey: SECRET_KEY,
 };
 
 export const configurePassport = (passport: PassportStatic) => {

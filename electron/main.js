@@ -2,6 +2,9 @@ const { app, BrowserWindow } = require("electron");
 const path = require("path");
 const isDev = process.env.NODE_ENV === "development";
 
+// --- Import the backend start function ---
+const { startServer } = require("../backend/dist/index.js");
+
 async function createWindow() {
   const win = new BrowserWindow({
     width: 1000,
@@ -17,8 +20,8 @@ async function createWindow() {
     await waitOn({ resources: ["http://localhost:5173"], timeout: 10000 });
     win.loadURL("http://localhost:5173");
   } else {
-    // Start backend server (serves both API + frontend)
-    require(path.join(__dirname, "../backend/dist/index.js"));
+    // Start backend server manually
+    startServer();
     // Wait briefly for server to start
     await new Promise((resolve) => setTimeout(resolve, 500));
     // Load frontend served by backend

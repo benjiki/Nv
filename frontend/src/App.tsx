@@ -16,6 +16,9 @@ import Deposit from "./pages/main/accountManagement/deposit";
 import Transfer from "./pages/main/accountManagement/transfer";
 import Loan from "./pages/main/accountManagement/loan";
 import Repayment from "./pages/main/accountManagement/repayment";
+import Users from "./pages/main/users/users";
+import CreateUsers from "./pages/main/users/createUsers";
+import EditUsers from "./pages/main/users/editUsers";
 
 function App() {
   const location = useLocation();
@@ -35,6 +38,31 @@ function App() {
                   </PageWrapper>
                 }
               />
+              <Route
+                path="/users"
+                element={
+                  <PageWrapper>
+                    <Users />
+                  </PageWrapper>
+                }
+              />
+              <Route
+                path="/users/create"
+                element={
+                  <PageWrapper>
+                    <CreateUsers />
+                  </PageWrapper>
+                }
+              />
+              <Route
+                path="/users/edit/:id"
+                element={
+                  <PageWrapper>
+                    <EditUsers />
+                  </PageWrapper>
+                }
+              />
+
               <Route
                 path="/accountholders"
                 element={

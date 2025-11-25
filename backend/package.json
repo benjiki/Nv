@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx --env-file=.env --watch src/index.ts",
     "devd": "nodemon -r ts-node/register src/index.ts",
-    "build": "tsc && cpx \"src/generated/**/*\" dist/generated",
+    "build": "tsc && cpx \"src/generated/**/*\" dist/generated && cpx .env dist/",
     "start": "node dist/index.js"
   },
   "keywords": [],

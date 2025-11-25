@@ -76,6 +76,14 @@ const AccountMangement = () => {
           className="border-2 w-fit"
         />
 
+        <Input
+          type="number"
+          placeholder="Filter by Receiver"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="border-2 w-fit"
+        />
+
         {/* Type filter */}
         <Select
           value={type}

@@ -168,7 +168,7 @@ const Navigation = () => {
               <li>
                 <NavigationMenuLink asChild>
                   <Link
-                    to="/users/list"
+                    to="/users"
                     className="block select-none rounded-md p-3 leading-tight no-underline outline-hidden transition-colors hover:bg-accent hover:text-accent-foreground focus:shadow-md"
                   >
                     <div className="text-sm font-medium leading-none">
@@ -176,6 +176,21 @@ const Navigation = () => {
                     </div>
                     <p className="text-muted-foreground text-sm leading-snug line-clamp-2">
                       Browse and manage all users in the system.
+                    </p>
+                  </Link>
+                </NavigationMenuLink>
+              </li>
+              <li>
+                <NavigationMenuLink asChild>
+                  <Link
+                    to="/users/create"
+                    className="block select-none rounded-md p-3 leading-tight no-underline outline-hidden transition-colors hover:bg-accent hover:text-accent-foreground focus:shadow-md"
+                  >
+                    <div className="text-sm font-medium leading-none">
+                      Create New User
+                    </div>
+                    <p className="text-muted-foreground text-sm leading-snug line-clamp-2">
+                      Add a new user to the system.
                     </p>
                   </Link>
                 </NavigationMenuLink>

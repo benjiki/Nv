@@ -22,7 +22,8 @@
     "cross-env": "^10.1.0",
     "electron": "^39.0.0",
     "electron-builder": "^26.0.12",
-    "electron-packager": "^17.1.2"
+    "electron-packager": "^17.1.2",
+    "electron-rebuild": "^3.2.9"
   },
   "dependencies": {
     "cors": "^2.8.5",
