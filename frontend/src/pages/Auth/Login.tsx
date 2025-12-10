@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { authService } from "@/utils/authService";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -23,23 +24,21 @@ const loginSchema = z.object({
   phoneNumber: z
     .string()
     .trim()
-    .min(10, { message: " Phone Number must be at least 10 digits " })
+    .min(10, { message: "Phone Number must be at least 10 digits" })
     .max(10, { message: "10 is the max number" }),
-  password: z
-    .string()
-    .min(8, { message: "Password must be at least 8 characters" }),
+  password: z.string().min(8, { message: "Password must be at least 8 characters" }),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
 const LoginForm: React.FC = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
 
-  const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: authService.login,
     onSuccess: (data) => {
@@ -51,7 +50,6 @@ const LoginForm: React.FC = () => {
       toast.success(data.message || "Login Success");
       navigate("/");
     },
-
     onError: (error) => {
       const axiosError = error as AxiosError<{
         message?: string;
@@ -60,12 +58,12 @@ const LoginForm: React.FC = () => {
       }>;
 
       console.log("❌ Backend error:", axiosError.response?.data);
-      // Pick the most useful message
+
       const msg =
-        axiosError.response?.data?.message || // For Joi or custom message
-        axiosError.response?.data?.errors?.join(", ") || // For validation arrays
-        axiosError.response?.data?.error || // For your backend "error" field
-        "Login failed"; // fallback
+        axiosError.response?.data?.message ||
+        axiosError.response?.data?.errors?.join(", ") ||
+        axiosError.response?.data?.error ||
+        "Login failed";
 
       toast.error(msg);
     },
@@ -74,6 +72,23 @@ const LoginForm: React.FC = () => {
   const onSubmit = (data: LoginFormData) => {
     mutation.mutate(data);
   };
+
+  // 🔹 Keyboard shortcut for navigating to Register
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        navigate("/auth/reg"); // <-- change to your register route
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [navigate]);
+
   return (
     <div className="relative w-full h-screen overflow-hidden">
       {/* 🔹 Foreground (form) */}
@@ -86,9 +101,7 @@ const LoginForm: React.FC = () => {
                 name="phoneNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-foreground">
-                      Phone Number 🤙
-                    </FormLabel>
+                    <FormLabel className="text-foreground">Phone Number 🤙</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Enter phone number"
@@ -111,9 +124,7 @@ const LoginForm: React.FC = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-foreground">
-                      Password 🔑
-                    </FormLabel>
+                    <FormLabel className="text-foreground">Password 🔑</FormLabel>
                     <FormControl>
                       <Input
                         type="password"
@@ -137,4 +148,5 @@ const LoginForm: React.FC = () => {
     </div>
   );
 };
+
 export default LoginForm;

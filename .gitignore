@@ -34,21 +34,5 @@ backend/logs/
 backend/coverage/
 backend/tmp/
 
-# === Electron ===
-electron/node_modules/
-electron/dist/
-electron/build/
-electron/out/
-electron/.env
-
-# Electron packaging output (e.g. electron-builder or forge)
-release/
-*.asar
-*.asar.unpacked/
 
 
-
-
-dist_electron
-
-/backend/prisma/dev.db

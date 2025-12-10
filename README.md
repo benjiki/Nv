@@ -4,17 +4,15 @@
 
 ## 📝 Description
 
-Nv is a desktop application meticulously crafted using Electron, React, and Vite for a seamless user experience. The backend is powered by Express.js, ensuring robust performance and efficient data management. Nv offers a web-based interface, bringing the power of a desktop application to the convenience of the web.
+Nv is a web application meticulously crafted using Electron, React, and Vite for a seamless user experience. The backend is powered by Express.js, ensuring robust performance and efficient data management. Nv offers a web-based interface, bringing the power of a web application.
 
 ## ✨ Features
 
 - 🕸️ Web
 
-
 ## 🛠️ Tech Stack
 
 - 🚀 Express.js
-
 
 ## 📦 Key Dependencies
 
@@ -30,7 +28,6 @@ wait-on: ^9.0.1
 - **devd**: `npm run devd`
 - **build**: `npm run build`
 - **start**: `npm run start`
-
 
 ## 📁 Project Structure
 
@@ -88,9 +85,6 @@ wait-on: ^9.0.1
 │   │       ├── accountMangement.validation.ts
 │   │       └── auth.validations.ts
 │   └── tsconfig.json
-├── electron
-│   ├── main.js
-│   └── preload.js
 ├── frontend
 │   ├── components.json
 │   ├── eslint.config.js

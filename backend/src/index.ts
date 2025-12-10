@@ -2,6 +2,15 @@ import path from "path";
 import dotenv from "dotenv";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
+import express from "express";
+import passport from "passport";
+import { configurePassport } from "./passport/jwt.strategy.js";
+import authRoutes from "./routes/auth.route.js";
+import accountHolderRoutes from "./routes/accountHolder.route.js";
+import accountManagementRoutes from "./routes/accountManagement.route.js";
+import { ApiError } from "./utils/ApiError.js";
+import { Server } from "socket.io";
+import { createServer } from "http";
 
 // --- __dirname fix ---
 const __filename = fileURLToPath(import.meta.url);
@@ -12,15 +21,21 @@ dotenv.config({
   path: path.resolve(__dirname, "../.env"),
 });
 
-import express from "express";
-import passport from "passport";
-import { configurePassport } from "./passport/jwt.strategy.js";
-import authRoutes from "./routes/auth.route.js";
-import accountHolderRoutes from "./routes/accountHolder.route.js";
-import accountManagementRoutes from "./routes/accountManagement.route.js";
-import { ApiError } from "./utils/ApiError.js";
-import { Server } from "socket.io";
-import { createServer } from "http";
+// --- Adjust Prisma engine path if running inside Electron ---
+const electronProcess = process as typeof process & { resourcesPath?: string };
+
+// This is only necessary when running inside packaged Electron
+if (electronProcess.resourcesPath) {
+  const prismaEnginePath = path.join(
+    electronProcess.resourcesPath,
+    "backend",
+    "node_modules",
+    ".prisma",
+    "client",
+    "query_engine.node"
+  );
+  process.env.PRISMA_QUERY_ENGINE_LIBRARY = prismaEnginePath;
+}
 
 // --- Serve frontend ---
 const distPath = join(__dirname, "../../frontend/dist");
@@ -33,7 +48,6 @@ export { io };
 export function startServer() {
   const app = express();
   const PORT = process.env.PORT || 5174;
-
   const server = createServer(app);
 
   // --- Initialize socket.io ---
@@ -46,7 +60,6 @@ export function startServer() {
 
   io.on("connection", (socket) => {
     console.log("🟢 Client connected:", socket.id);
-
     socket.on("disconnect", () => {
       console.log("🔴 Client disconnected:", socket.id);
     });
@@ -93,7 +106,8 @@ export function startServer() {
   return { io };
 }
 
-// --- Only start server if file is executed directly ---
-if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {
+// --- Only start server if not running inside Electron ---
+// Electron will call startServer() manually
+if (!process.versions.electron) {
   startServer();
 }
